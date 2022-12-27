@@ -1,19 +1,20 @@
-
 {
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "build": "run-s \"build:*\"",
+    "build": "npm-run-all -p build:*",
     "build:css": "npm run generate:css -- --minify",
-    "build:remix": "remix build",
-    "dev": "remix build && run-p \"dev:*\"",
+    "build:remix": "cross-env NODE_ENV=production remix build",
+    "dev": "npm-run-all -p dev:*",
     "dev:css": "npm run generate:css -- --watch",
-    "dev:remix": "remix watch",
+    "dev:remix": "cross-env NODE_ENV=development remix watch",
     "generate:css": "npx tailwindcss -i ./styles/tailwind.css -o ./app/tailwind.css",
     "start": "cross-env NODE_ENV=production npm run wrangler",
     "typecheck": "tsc -b",
     "dev:wrangler": "cross-env NODE_ENV=development npm run wrangler",
-    "wrangler": "wrangler pages dev ./public"
+    "wrangler": "wrangler pages dev ./public",
+    "build:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --minify --bundle --format=esm --define:process.env.NODE_ENV='\"production\"'",
+    "dev:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --bundle --format=esm --define:process.env.NODE_ENV='\"development\"' --watch"
   },
   "dependencies": {
     "@remix-run/cloudflare": "^1.9.0",
@@ -32,7 +33,11 @@
     "react-dom": "^18.2.0",
     "remix-i18next": "^5.0.0",
     "remix-utils": "^5.1.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "node-persist": "^3.1.0",
+    "web-push": "^3.4.5",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.18.0",
@@ -53,7 +58,8 @@
     "prettier-plugin-tailwindcss": "^0.2.1",
     "tailwindcss": "^3.2.4",
     "typescript": "^4.8.4",
-    "wrangler": "alpha"
+    "wrangler": "alpha",
+    "@types/node-persist": "^3.1.2"
   },
   "engines": {
     "node": ">=16.13"
