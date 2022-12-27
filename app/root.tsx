@@ -1,5 +1,5 @@
-import React from 'react';
-import { useLocation, useMatches } from '@remix-run/react';
+import React from "react";
+import { useLocation, useMatches } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import type { LinksFunction } from "@remix-run/cloudflare";
 import {
@@ -62,17 +62,16 @@ export default function App() {
 
   return (
     <html lang="en">
-       
       <head>
-         
-        <Meta /> <Links /> 
-      </head> 
+        <Meta />
+        <link rel="manifest" href="/resources/manifest.webmanifest" />
+        <Links />
+      </head>
       <body>
-         
-        <h4 className="mb-4">Current Theme: </h4> 
-        <Button color="primary">Click me!</Button> <Outlet /> 
-        <ScrollRestoration /> <Scripts /> <LiveReload /> 
-      </body> 
+        <h4 className="mb-4">Current Theme: </h4>
+        <Button color="primary">Click me!</Button> <Outlet />
+        <ScrollRestoration /> <Scripts /> <LiveReload />
+      </body>
     </html>
   );
 }
