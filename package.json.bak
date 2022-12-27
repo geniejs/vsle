@@ -13,6 +13,7 @@
     "start": "cross-env NODE_ENV=production npm run wrangler",
     "typecheck": "tsc -b",
     "dev:wrangler": "cross-env NODE_ENV=development npm run wrangler",
+    "dev:node": "cross-env NODE_ENV=development nodemon --require dotenv/config ./server.js --watch ./server.js",
     "wrangler": "wrangler pages dev ./public"
   },
   "dependencies": {
@@ -53,7 +54,7 @@
     "prettier-plugin-tailwindcss": "^0.2.1",
     "tailwindcss": "^3.2.4",
     "typescript": "^4.8.4",
-    "wrangler": "alpha"
+    "wrangler": "^2.2.1"
   },
   "engines": {
     "node": ">=16.13"
