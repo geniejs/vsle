@@ -1,7 +1,7 @@
 import { PushNotification, SaveSubscription } from "../../utils/server/pwa-utils.server";
-import type { LoaderFunction, ActionFunction } from "@remix-run/node";
+import type { LoaderFunction, ActionFunction } from "@remix-run/cloudflare";
 
-const webPush = require("web-push");
+// const webPush = require("web-push");
 
 export const action: ActionFunction = async ({ request }) => {
   const data = await request.json();
@@ -18,7 +18,7 @@ export const loader: LoaderFunction = async () => {
       "You must set the VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY " +
         "environment variables. You can use the following ones:",
     );
-    console.log(webPush.generateVAPIDKeys());
+    // console.log(webPush.generateVAPIDKeys());
     return null;
   }
 
