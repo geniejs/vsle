@@ -61,7 +61,7 @@ export default function App() {
         };
       }
     }
-  }, [location]);
+  }, [location, matches]);
 
   return (
     <html className="font-overpass" lang="en">
@@ -72,6 +72,7 @@ export default function App() {
       </head>
       <body>
         <Div100vh>
+          <Button color="secondary">Click me!</Button>
           <Button color="primary">Click me!</Button> <Outlet />
           <ScrollRestoration /> <Scripts /> <LiveReload />
         </Div100vh>
