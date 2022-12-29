@@ -12,6 +12,8 @@ import {
 } from "@remix-run/react";
 import styles from "./tailwind.css";
 import { Button } from "react-daisyui";
+import Div100vh from "react-div-100vh";
+
 let isMount = true;
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
@@ -62,15 +64,17 @@ export default function App() {
   }, [location]);
 
   return (
-    <html lang="en">
+    <html className="font-overpass" lang="en">
       <head>
         <Meta />
         <link rel="manifest" href="/resources/manifest.webmanifest" />
         <Links />
       </head>
       <body>
-        <Button color="primary">Click me!</Button> <Outlet />
-        <ScrollRestoration /> <Scripts /> <LiveReload />
+        <Div100vh>
+          <Button color="primary">Click me!</Button> <Outlet />
+          <ScrollRestoration /> <Scripts /> <LiveReload />
+        </Div100vh>
       </body>
     </html>
   );

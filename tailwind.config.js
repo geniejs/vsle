@@ -6,7 +6,12 @@ module.exports = {
     "node_modules/react-daisyui/dist/**/*.js",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        jetbrains: ["JetBrains Mono", "monospace"],
+        overpass: ["Overpass", "sans-serif"],
+      },
+    },
   },
   plugins: [require("daisyui"), require("@tailwindcss/forms")],
   daisyui: {
