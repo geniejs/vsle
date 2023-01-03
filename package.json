@@ -2,7 +2,7 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "build": "npm-run-all -p build:*",
+    "build": "run-s build:css build:*",
     "servertsc": "tsc -p tsconfig.server.json",
     "build:css": "npm run generate:css -- --minify",
     "build:remix": "cross-env NODE_ENV=production remix build",
