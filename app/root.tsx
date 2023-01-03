@@ -1,7 +1,9 @@
 import React from "react";
-import { useLocation, useMatches } from "@remix-run/react";
+import { useLoaderData, useLocation, useMatches } from "@remix-run/react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import type { LinksFunction } from "@remix-run/cloudflare";
+import { signIn, signOut } from "./utils/client/auth.client";
+
 import {
   Links,
   LiveReload,
@@ -21,14 +23,14 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 export let loader: LoaderFunction = async ({ context }) => {
-  // Use context.YOUR_ENVIRONMENT_VARIABLE to access your environment variable. console.log("context", context);
-  return {};
+  const session = await (context.data as Record<string, any>).getSession();
+  return { session };
 };
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 export default function App() {
   let location = useLocation();
   let matches = useMatches();
-
+  const { session } = useLoaderData();
   React.useEffect(() => {
     let mounted = isMount;
     isMount = false;
@@ -72,8 +74,19 @@ export default function App() {
       </head>
       <body>
         <Div100vh>
-          <Button color="secondary">Click me!</Button>
-          <Button color="primary">Click me!</Button> <Outlet />
+          {session?.user ? (
+            <div>
+              <h1 className="text-center text-4xl">{session?.user?.name}</h1>
+              <Button color="secondary" onClick={() => signOut()}>
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <Button color="primary" onClick={() => signIn("google")}>
+              Sign In with Google
+            </Button>
+          )}
+          <Outlet />
           <ScrollRestoration /> <Scripts /> <LiveReload />
         </Div100vh>
       </body>
