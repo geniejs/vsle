@@ -11,25 +11,25 @@ const pagesFunctionHandler = createPagesFunctionHandler({
 });
 
 export function onRequest(context: EventContext<any, any, any>) {
-  //return pagesFunctionHandler(context);
-  return createRequestHandlerWithAuth(
-    context.request,
-    context.env,
-    context.data,
-    {
-      providers: [
-        Google({
-          clientId: context.env.GOOGLE_CLIENT_ID!,
-          clientSecret: context.env.GOOGLE_CLIENT_SECRET!,
-        }) as unknown as Provider<Profile>,
-        // GitHub({
-        //   clientId: process.env.GOOGLE_CLIENT_ID!,
-        //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        // }) as unknown as Provider<Profile>,
-      ],
-    },
-    () => pagesFunctionHandler(context)
-  );
+  return pagesFunctionHandler(context);
+  // return createRequestHandlerWithAuth(
+  //   context.request,
+  //   context.env,
+  //   context.data,
+  //   {
+  //     providers: [
+  //       Google({
+  //         clientId: context.env.GOOGLE_CLIENT_ID!,
+  //         clientSecret: context.env.GOOGLE_CLIENT_SECRET!,
+  //       }) as unknown as Provider<Profile>,
+  //       // GitHub({
+  //       //   clientId: process.env.GOOGLE_CLIENT_ID!,
+  //       //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+  //       // }) as unknown as Provider<Profile>,
+  //     ],
+  //   },
+  //   () => pagesFunctionHandler(context)
+  // );
 }
 // createRequestHandler({
 //   build: require(BUILD_DIR),

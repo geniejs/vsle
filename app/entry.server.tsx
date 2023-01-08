@@ -1,4 +1,7 @@
-import type { EntryContext } from "@remix-run/cloudflare";
+import type {
+  EntryContext,
+  HandleDataRequestFunction,
+} from "@remix-run/cloudflare";
 import { RemixServer } from "@remix-run/react";
 import { renderToString } from "react-dom/server";
 
@@ -11,6 +14,7 @@ export default function handleRequest(
   const markup = renderToString(
     <RemixServer context={remixContext} url={request.url} />
   );
+  console.log("BAM handleRequest request.url", request.url);
 
   responseHeaders.set("Content-Type", "text/html");
 
@@ -19,3 +23,15 @@ export default function handleRequest(
     headers: responseHeaders,
   });
 }
+
+// this is an optional export
+export const handleDataRequest: HandleDataRequestFunction = (
+  response: Response,
+  // same args that get passed to the action or loader that was called
+  { request, params, context }
+) => {
+  console.log("WHAM handleDataRequest request.url", request.url);
+
+  response.headers.set("x-custom", "yay!");
+  return response;
+};
