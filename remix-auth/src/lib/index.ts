@@ -46,6 +46,8 @@ export class RemixAuthenticator<User = unknown> {
     request: Request;
     params?: DataFunctionArgs["params"];
   }) {
+    console.log("_____________________________________________________");
+
     const url = new URL(request.url);
     const searchParams = url.searchParams || new URLSearchParams();
     const formData = (await getBody(request.clone())) || {};
@@ -90,6 +92,24 @@ export class RemixAuthenticator<User = unknown> {
 
     const isPost = method === "POST";
     const isInternal = request.headers.get("X-Remix-Auth-Internal");
+    console.log({
+      url: url.href,
+      csrfToken,
+      isPost,
+      action,
+      providerId,
+      csrfCookieName: authjsCookies?.csrfToken?.name,
+      searchParams,
+      "X-Remix-Auth-Internal": request.headers.get("X-Remix-Auth-Internal"),
+    });
+    console.log(
+      "dofetch",
+      csrfToken &&
+        !isPost &&
+        action &&
+        providerId &&
+        searchParams.get("remixAuthRedirectUrlMethod") === "POST"
+    );
     if (!providerId && isPost) {
       // IF POST, PROVIDER IS REQUIRED
       status.body = 'Missing "provider" parameter';
@@ -176,7 +196,10 @@ export class RemixAuthenticator<User = unknown> {
       } else {
         // If we got here it is a get request so let auth handle, potentially with a redirect
         const authResult = await Auth(request, this.options);
-
+        console.log({
+          status: authResult.status,
+          cookies: authResult.headers.get("Set-Cookie"),
+        });
         if (searchParams.has("remixAuthRedirectUrl")) {
           const remixAuthRedirectUrl = new URL(
             searchParams.get("remixAuthRedirectUrl")!
