@@ -1,14 +1,22 @@
-import type { DataFunctionArgs } from "@remix-run/cloudflare";
-import { handleAuth } from "~/utils/server/remix-auth.server";
+import type { ActionFunction, LoaderFunction } from "@remix-run/cloudflare";
+import { getAuthenticator } from "~/services/auth.server";
 
-export let loader = async (data: DataFunctionArgs) => {
-  console.log("loader", data.request.url);
-  const result = await handleAuth(data);
+export let loader: LoaderFunction = async ({ request, params, context }) => {
+  const result = getAuthenticator(
+    context.env as Record<string, string>
+  ).handleAuthRoute({
+    request,
+    params,
+  });
   return result;
 };
 
-export let action = async (data: DataFunctionArgs) => {
-  console.log("action", data.request.url);
-  const result = await handleAuth(data);
+export let action: ActionFunction = async ({ request, params, context }) => {
+  const result = getAuthenticator(
+    context.env as Record<string, string>
+  ).handleAuthRoute({
+    request,
+    params,
+  });
   return result;
 };

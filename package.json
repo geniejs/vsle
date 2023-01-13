@@ -3,7 +3,6 @@
   "sideEffects": false,
   "scripts": {
     "build": "run-s build:css build:*",
-    "servertsc": "tsc -p tsconfig.server.json",
     "build:css": "npm run generate:css -- --minify",
     "build:remix": "cross-env NODE_ENV=production remix build",
     "dev": "npm-run-all -p dev:*",

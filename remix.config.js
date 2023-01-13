@@ -25,5 +25,10 @@ module.exports = {
   server: "./server.ts",
   devServerBroadcastDelay: 1000,
   ignoredRouteFiles: ["**/.*"],
-  serverDependenciesToBundle: ["@auth/core", "oauth4webapi"],
+  serverDependenciesToBundle: [
+    "@auth/core",
+    "oauth4webapi",
+    "@auth/core/providers/google",
+    "preact-render-to-string",
+  ],
 };

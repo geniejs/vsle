@@ -1,62 +1,48 @@
-import type { LoaderFunction } from "@remix-run/server-runtime";
+import type { LoaderFunction } from "@remix-run/cloudflare";
 import { useFetcher, useLoaderData } from "@remix-run/react";
-import type { SignInOptions } from "next-auth/react";
-import { signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { Button } from "react-daisyui";
-import Quintle from "~/components/quintle/quintile";
-export let loader: LoaderFunction = async ({ context, request }) => {
-  const session = (context?.data as Record<string, any>)?.getSession
-    ? await (context.data as Record<string, any>).getSession()
-    : null;
-  const defaultCallbackUrl = new URL(request.url).pathname;
+import { getAuthenticator } from "~/services/auth.server";
 
-  return { session, defaultCallbackUrl };
+export let loader: LoaderFunction = async ({ request, context }) => {
+  const user = await getAuthenticator(
+    context.env as Record<string, string>
+  ).isAuthenticated(request);
+
+  return { user };
 };
 export default function Index() {
-  const { session, defaultCallbackUrl } = useLoaderData();
-  const csrf = useFetcher();
-  const options: SignInOptions = {};
-  // const { callbackUrl, redirect = true } = options ?? {};
-  const [callbackUrl, setCallbackUrl] = useState(
-    options?.callbackUrl || defaultCallbackUrl
-  );
-  useEffect(() => {
-    if (!callbackUrl) {
-      setCallbackUrl(window.location.href);
-    }
-  }, [callbackUrl]);
+  const { user } = useLoaderData();
+  const fetcher = useFetcher();
 
   return (
-    <>
-      {session?.user ? (
+    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
+      {user ? (
         <div>
-          <h1 className="text-center text-4xl">{session?.user?.name}</h1>
-          <Button color="secondary" onClick={() => signOut()}>
-            Sign Out
-          </Button>
+          <h1 className="text-center text-4xl">{user.name}</h1>
+          <fetcher.Form method="post" action="/auth/signout/google">
+            <p>
+              <button
+                color="primary"
+                type="submit"
+                disabled={fetcher.state === "submitting"}
+              >
+                Sign Out
+              </button>
+            </p>
+          </fetcher.Form>
         </div>
       ) : (
-        <csrf.Form method="post" action="/auth/signin/google">
-          <input
-            type="hidden"
-            name="callbackUrl"
-            value={callbackUrl || defaultCallbackUrl}
-          />
+        <fetcher.Form method="post" action="/auth/signin/google">
           <p>
-            <Button
+            <button
               color="primary"
               type="submit"
-              disabled={csrf.state === "submitting"}
+              disabled={fetcher.state === "submitting"}
             >
               Sign In
-            </Button>
+            </button>
           </p>
-
-          {csrf.type === "done" ? <div>{JSON.stringify(csrf.data)}</div> : null}
-        </csrf.Form>
+        </fetcher.Form>
       )}
-      <Quintle></Quintle>
-    </>
+    </div>
   );
 }
