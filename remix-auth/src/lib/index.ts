@@ -179,7 +179,6 @@ export class RemixAuthenticator<User = unknown> {
           mutableRes.headers.set("X-Remix-Auth-Internal", "1");
           mutableRes.headers.delete("Content-Type");
           return redirect(data.url ?? callbackUrl, {
-            ...mutableRes,
             status: 302,
             headers: mutableRes.headers,
           });
@@ -220,7 +219,6 @@ export class RemixAuthenticator<User = unknown> {
           mutableAuthResult.headers.set("X-Remix-Auth-Internal", "1");
           mutableAuthResult.headers.delete("Content-Type");
           return redirect(remixAuthRedirectUrl.href, {
-            ...mutableAuthResult,
             status: 302,
             headers: mutableAuthResult.headers,
           });
