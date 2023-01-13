@@ -30,5 +30,7 @@ export const handleDataRequest: HandleDataRequestFunction = (
   // same args that get passed to the action or loader that was called
   { request, params, context }
 ) => {
+  console.log("wham handleDataRequest request.url", request.url);
+
   return response;
 };

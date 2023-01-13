@@ -15,7 +15,8 @@
     "wrangler": "wrangler pages dev ./public",
     "build:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --minify --bundle --format=esm --define:process.env.NODE_ENV='\"production\"'",
     "dev:worker": "esbuild ./app/entry.worker.ts --outfile=./public/entry.worker.js --bundle --format=esm --define:process.env.NODE_ENV='\"development\"' --watch",
-    "postinstall": "remix-esbuild-override && patch-package"
+    "postinstall": "remix-esbuild-override && patch-package",
+    "tail:wrangler": "wrangler pages deployment tail --project-name vsle --environment preview"
   },
   "dependencies": {
     "@auth/core": "^0.2.5",

@@ -208,7 +208,7 @@ export class RemixAuthenticator<User = unknown> {
           searchParams.forEach((val, key) => {
             remixAuthRedirectUrl.searchParams.set(key, val);
           });
-          const authJson = ((await authResult.json()) || {}) as Record<
+          const authJson = ((await authResult.clone().json()) || {}) as Record<
             string,
             any
           >;
