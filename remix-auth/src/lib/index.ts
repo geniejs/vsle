@@ -46,8 +46,6 @@ export class RemixAuthenticator<User = unknown> {
     request: Request;
     params?: DataFunctionArgs["params"];
   }) {
-    console.log("_____________________________________________________");
-
     const url = new URL(request.url);
     const searchParams = url.searchParams || new URLSearchParams();
     const formData = (await getBody(request.clone())) || {};
@@ -91,24 +89,6 @@ export class RemixAuthenticator<User = unknown> {
     };
 
     const isPost = method === "POST";
-    console.log({
-      url: url.href,
-      csrfToken,
-      isPost,
-      action,
-      providerId,
-      csrfCookieName: authjsCookies?.csrfToken?.name,
-      searchParams,
-      "X-Remix-Auth-Internal": request.headers.get("X-Remix-Auth-Internal"),
-    });
-    console.log(
-      "dofetch",
-      csrfToken &&
-        !isPost &&
-        action &&
-        providerId &&
-        searchParams.get("remixAuthRedirectUrlMethod") === "POST"
-    );
     const isInternal = request.headers.get("X-Remix-Auth-Internal");
     if (!providerId && isPost) {
       // IF POST, PROVIDER IS REQUIRED
@@ -167,13 +147,9 @@ export class RemixAuthenticator<User = unknown> {
           body: url.searchParams,
         });
 
-        console.log("fetch res", res);
         const data = (await res.clone().json()) as { url: string };
-        console.log("fetch data", data);
         const error = new URL(data.url).searchParams.get("error");
-        console.log(" fetch error", error);
         const redirectPost = getValue("redirect", searchParams, params) ?? true;
-        console.log("redirectPost", redirectPost);
         // TODO: Support custom providers
         const isCredentials = providerId === "credentials";
         const isEmail = providerId === "email";
