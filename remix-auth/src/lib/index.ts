@@ -10,6 +10,7 @@ import {
   getBody,
   getValue,
   authjsDefaultCookies,
+  getPathForRouter,
 } from "remix-auth/src/utils/utils";
 import type { AuthAction } from "@auth/core/types";
 import type { ProviderID, RemixAuthConfig } from "remix-auth/src/types";
@@ -49,6 +50,8 @@ export class RemixAuthenticator<User = unknown> {
     console.log("_____________________________________________________");
 
     const url = new URL(request.url);
+    this.options.host ??= url.origin;
+    console.log('this.options.host', this.options.host)
     const searchParams = url.searchParams || new URLSearchParams();
     const formData = (await getBody(request.clone())) || {};
     Object.entries(formData).forEach(([key, val]) => {
@@ -142,7 +145,7 @@ export class RemixAuthenticator<User = unknown> {
           method
         );
         return redirect(
-          remixAuthRedirectUrl.pathname + remixAuthRedirectUrl.search,
+          getPathForRouter(remixAuthRedirectUrl, this.options.host),
           {
             headers: {
               "X-Remix-Auth-Internal": "1",
@@ -181,7 +184,7 @@ export class RemixAuthenticator<User = unknown> {
           mutableRes.headers.set("X-Remix-Auth-Internal", "1");
           mutableRes.headers.delete("Content-Type");
           const redirectUrl = new URL(data.url ?? callbackUrl);
-          return redirect(redirectUrl.pathname + redirectUrl.search, {
+          return redirect(getPathForRouter(redirectUrl, this.options.host), {
             ...mutableRes,
             status: 302,
             headers: mutableRes.headers,
@@ -223,7 +226,7 @@ export class RemixAuthenticator<User = unknown> {
           mutableAuthResult.headers.set("X-Remix-Auth-Internal", "1");
           mutableAuthResult.headers.delete("Content-Type");
           return redirect(
-            remixAuthRedirectUrl.pathname + remixAuthRedirectUrl.search,
+            getPathForRouter(remixAuthRedirectUrl, this.options.host),
             {
               ...mutableAuthResult,
               status: 302,

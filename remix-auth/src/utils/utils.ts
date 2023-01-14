@@ -1,4 +1,4 @@
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/server-runtime";
 
 export const getBody = async (
   req: Request
@@ -48,3 +48,10 @@ export function authjsDefaultCookies(useSecureCookies: boolean) {
     },
   };
 }
+
+export const getPathForRouter = (
+  url: URL,
+    rootHost: string = "",
+): string => {
+  return url.href.replace(rootHost, '')
+};
