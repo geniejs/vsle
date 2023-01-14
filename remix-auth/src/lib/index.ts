@@ -141,11 +141,14 @@ export class RemixAuthenticator<User = unknown> {
           "remixAuthRedirectUrlMethod",
           method
         );
-        return redirect(remixAuthRedirectUrl.href, {
-          headers: {
-            "X-Remix-Auth-Internal": "1",
-          },
-        });
+        return redirect(
+          remixAuthRedirectUrl.pathname + remixAuthRedirectUrl.search,
+          {
+            headers: {
+              "X-Remix-Auth-Internal": "1",
+            },
+          }
+        );
       } else if (
         csrfToken &&
         !isPost &&
@@ -157,7 +160,6 @@ export class RemixAuthenticator<User = unknown> {
         url.searchParams.delete("remixAuthRedirectUrlMethod");
         let res = await fetch(url.origin + url.pathname, {
           method: "POST",
-          credentials: "same-origin",
           headers: {
             Cookie: request.headers.get("Cookie") as string,
             "Content-Type": "application/x-www-form-urlencoded",
@@ -178,7 +180,9 @@ export class RemixAuthenticator<User = unknown> {
           const mutableRes = new Response(res.body, res);
           mutableRes.headers.set("X-Remix-Auth-Internal", "1");
           mutableRes.headers.delete("Content-Type");
-          return redirect(data.url ?? callbackUrl, {
+          const redirectUrl = new URL(data.url ?? callbackUrl);
+          return redirect(redirectUrl.pathname + redirectUrl.search, {
+            ...mutableRes,
             status: 302,
             headers: mutableRes.headers,
           });
@@ -218,10 +222,14 @@ export class RemixAuthenticator<User = unknown> {
           const mutableAuthResult = new Response(authResult.body, authResult);
           mutableAuthResult.headers.set("X-Remix-Auth-Internal", "1");
           mutableAuthResult.headers.delete("Content-Type");
-          return redirect(remixAuthRedirectUrl.href, {
-            status: 302,
-            headers: mutableAuthResult.headers,
-          });
+          return redirect(
+            remixAuthRedirectUrl.pathname + remixAuthRedirectUrl.search,
+            {
+              ...mutableAuthResult,
+              status: 302,
+              headers: mutableAuthResult.headers,
+            }
+          );
         } else {
           return authResult;
         }
