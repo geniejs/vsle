@@ -6,6 +6,8 @@ export let loader: LoaderFunction = async ({ request, params, context }) => {
     context.env as Record<string, string>
   ).handleAuthRoute({
     request,
+    action: params.action!,
+    providerId: params.providerId,
     params,
   });
   return result;
@@ -16,6 +18,8 @@ export let action: ActionFunction = async ({ request, params, context }) => {
     context.env as Record<string, string>
   ).handleAuthRoute({
     request,
+    action: params.action!,
+    providerId: params.providerId,
     params,
   });
   return result;
