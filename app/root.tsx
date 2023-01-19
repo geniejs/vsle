@@ -11,7 +11,10 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import styles from "./tailwind.css";
+import global from "./global.css";
+import reset from "@unocss/reset/tailwind.css";
+import uno from "./uno.css";
+
 import Div100vh from "react-div-100vh";
 
 let isMount = true;
@@ -21,7 +24,11 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: global },
+  { rel: "stylesheet", href: reset },
+  { rel: "stylesheet", href: uno },
+];
 export default function App() {
   let location = useLocation();
   let matches = useMatches();
@@ -60,13 +67,13 @@ export default function App() {
   }, [location, matches]);
 
   return (
-    <html className="font-overpass" lang="en">
+    <html className="font-sans" lang="en">
       <head>
         <Meta />
         <link rel="manifest" href="/resources/manifest.webmanifest" />
         <Links />
       </head>
-      <body>
+      <body className="bg-richblue-200">
         <Div100vh>
           <Outlet />
           <ScrollRestoration /> <Scripts /> <LiveReload />

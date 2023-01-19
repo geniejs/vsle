@@ -55,7 +55,10 @@ export async function copyText(text: string): Promise<ResponseObject> {
  * @param {() => void} offline - A function to be invoked if the device is not connected to an internet network.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function checkConnectivity(online: () => void, offline: () => void): Promise<ResponseObject> {
+export async function checkConnectivity(
+  online: () => void,
+  offline: () => void
+): Promise<ResponseObject> {
   try {
     if (navigator.onLine) {
       online();
@@ -243,17 +246,24 @@ interface NotificationOptions {
  * @param {NotificationOptions} options - An object consisting of the notification's body, badge, icon, image, and silent options. Refer to https://github.com/ShafSpecs/remix-pwa#client-notification-api for additional info.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function SendNotification(title: string, options: NotificationOptions): Promise<ResponseObject> {
+export async function SendNotification(
+  title: string,
+  options: NotificationOptions
+): Promise<ResponseObject> {
   try {
     if ("Notification" in window) {
-      const permissions = await (await navigator.permissions.query({ name: "notifications" })).state;
-      navigator.permissions.query({ name: "notifications" }).then((permissionStatus) => {
-        if (permissionStatus.state === "granted") {
-          return;
-        } else {
-          return Notification.requestPermission();
-        }
-      });
+      const permissions = await (
+        await navigator.permissions.query({ name: "notifications" })
+      ).state;
+      navigator.permissions
+        .query({ name: "notifications" })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === "granted") {
+            return;
+          } else {
+            return Notification.requestPermission();
+          }
+        });
 
       if (permissions === "granted") {
         await navigator.serviceWorker.ready.then((registration) => {
@@ -290,7 +300,10 @@ export async function SendNotification(title: string, options: NotificationOptio
  * @param {() => void} notVisible - A function to be invoked if the element is not visible on the current page.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function Visibility(isVisible: () => void, notVisible: () => void): Promise<ResponseObject> {
+export async function Visibility(
+  isVisible: () => void,
+  notVisible: () => void
+): Promise<ResponseObject> {
   try {
     if (document.visibilityState) {
       const visibleState = document.visibilityState;
@@ -390,7 +403,11 @@ export async function WebShare(data: any): Promise<ResponseObject> {
  * @param {string} text - An accompanying text alongside the header.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function WebShareLink(url: string, title: string, text: string): Promise<ResponseObject> {
+export async function WebShareLink(
+  url: string,
+  title: string,
+  text: string
+): Promise<ResponseObject> {
   try {
     if (navigator.canShare({ url })) {
       await navigator.share({
@@ -423,7 +440,11 @@ export async function WebShareLink(url: string, title: string, text: string): Pr
  * @param {string} text - An accompanying text alongside the header.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function WebShareFile(title: string, data: any[], text: string): Promise<ResponseObject> {
+export async function WebShareFile(
+  title: string,
+  data: any[],
+  text: string
+): Promise<ResponseObject> {
   let filesArray = [...data];
   try {
     if (navigator.canShare && navigator.canShare({ files: filesArray })) {

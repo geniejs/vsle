@@ -2,7 +2,6 @@ import type { LoaderFunction } from "@remix-run/cloudflare";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import Quintle from "~/components/quintle/quintile";
 import { getAuthenticator } from "~/services/auth.server";
-import { Button } from "react-daisyui";
 export let loader: LoaderFunction = async ({ request, context }) => {
   const user = await getAuthenticator(
     context.env as Record<string, string>
@@ -15,32 +14,42 @@ export default function Index() {
   const fetcher = useFetcher();
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
+    <div className="leading-5">
       {user ? (
         <div>
           <h1 className="text-center text-4xl">{user.name}</h1>
           <fetcher.Form method="post" action="/auth/signout/google">
             <p>
-              <Button
+              <button
+                bg="blue-400 hover:blue-500 dark:blue-500 dark:hover:blue-600"
+                text="sm white"
+                font="mono light"
+                p="y-2 x-4"
+                border="2 rounded blue-200"
                 color="primary"
                 type="submit"
                 disabled={fetcher.state === "submitting"}
               >
-                Sign Out
-              </Button>
+                Sign Out <div className="i-material-symbols-logout" />
+              </button>
             </p>
           </fetcher.Form>
         </div>
       ) : (
         <fetcher.Form method="post" action="/auth/signin/google">
           <p>
-            <Button
+            <button
+              bg="blue-400 hover:blue-500 dark:blue-500 dark:hover:blue-600"
+              text="sm white"
+              font="mono light"
+              p="y-2 x-4"
+              border="2 rounded blue-200"
               color="primary"
               type="submit"
               disabled={fetcher.state === "submitting"}
             >
-              Sign In
-            </Button>
+              Sign In <div className="i-material-symbols-login" />
+            </button>
           </p>
         </fetcher.Form>
       )}

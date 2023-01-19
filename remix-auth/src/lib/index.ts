@@ -21,7 +21,7 @@ type AuthAction =
   | "signout"
   | "callback"
   | "verify-request"
-  | "error"
+  | "error";
 
 const actions = [
   "providers",
@@ -32,7 +32,7 @@ const actions = [
   "callback",
   "verify-request",
   "error",
-] as const
+] as const;
 export class RemixAuthenticator<User = unknown> {
   private readonly options: RemixAuthConfig;
 
@@ -60,7 +60,6 @@ export class RemixAuthenticator<User = unknown> {
     providerId?: ProviderID<P> | undefined;
     params?: DataFunctionArgs["params"];
   }) {
-
     const url = new URL(request.url);
     this.options.host ??= url.origin;
     const searchParams = url.searchParams || new URLSearchParams();
@@ -82,13 +81,8 @@ export class RemixAuthenticator<User = unknown> {
       ...this.options.cookies,
     };
 
-    action = action || getValue("action", searchParams, params) as
-      | AuthAction;
-    providerId = providerId || getValue(
-      "providerId",
-      searchParams,
-      params
-    );
+    action = action || (getValue("action", searchParams, params) as AuthAction);
+    providerId = providerId || getValue("providerId", searchParams, params);
     let csrfToken =
       cookies[authjsCookies.csrfToken.name] ||
       getValue("csrfToken", searchParams, params);
@@ -194,7 +188,7 @@ export class RemixAuthenticator<User = unknown> {
       } else {
         // If we got here it is a get request so let auth handle, potentially with a redirect
         const authResult = await Auth(request, this.options);
-      
+
         if (searchParams.has("remixAuthRedirectUrl")) {
           const remixAuthRedirectUrl = new URL(
             searchParams.get("remixAuthRedirectUrl")!

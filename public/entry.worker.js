@@ -1,15 +1,18 @@
 // node_modules/@remix-run/server-runtime/dist/esm/responses.js
 var json = (data, init = {}) => {
-  let responseInit = typeof init === "number" ? {
-    status: init
-  } : init;
+  let responseInit =
+    typeof init === "number"
+      ? {
+          status: init,
+        }
+      : init;
   let headers = new Headers(responseInit.headers);
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json; charset=utf-8");
   }
   return new Response(JSON.stringify(data), {
     ...responseInit,
-    headers
+    headers,
   });
 };
 
@@ -37,7 +40,7 @@ async function handleMessage(event) {
     const [dataCache, documentCache, existingDocument] = await Promise.all([
       caches.open(DATA_CACHE),
       caches.open(DOCUMENT_CACHE),
-      caches.match(documentUrl)
+      caches.match(documentUrl),
     ]);
     if (!existingDocument || !isMount) {
       debug("Caching document for", documentUrl);
@@ -77,7 +80,7 @@ async function handleFetch(event) {
     const cached = await caches.match(event.request, {
       cacheName: ASSET_CACHE,
       ignoreVary: true,
-      ignoreSearch: true
+      ignoreSearch: true,
     });
     if (cached) {
       debug("Serving asset from cache", url.pathname);
@@ -99,7 +102,10 @@ async function handleFetch(event) {
       await cache.put(event.request, response.clone());
       return response;
     } catch (error) {
-      debug("Serving data from network failed, falling back to cache", url.pathname + url.search);
+      debug(
+        "Serving data from network failed, falling back to cache",
+        url.pathname + url.search
+      );
       const response = await caches.match(event.request);
       if (response) {
         response.headers.set("X-Remix-Worker", "yes");
@@ -109,7 +115,7 @@ async function handleFetch(event) {
         { message: "Network Error" },
         {
           status: 500,
-          headers: { "X-Remix-Catch": "yes", "X-Remix-Worker": "yes" }
+          headers: { "X-Remix-Catch": "yes", "X-Remix-Worker": "yes" },
         }
       );
     }
@@ -122,7 +128,10 @@ async function handleFetch(event) {
       await cache.put(event.request, response.clone());
       return response;
     } catch (error) {
-      debug("Serving document from network failed, falling back to cache", url.pathname);
+      debug(
+        "Serving document from network failed, falling back to cache",
+        url.pathname
+      );
       const response = await caches.match(event.request);
       if (response) {
         return response;
@@ -141,17 +150,20 @@ var handlePush = (event) => {
     badge: data.badge ? data.badge : "/icons/android-icon-48x48.png",
     dir: data.dir ? data.dir : "auto",
     image: data.image ? data.image : void 0,
-    silent: data.silent ? data.silent : false
+    silent: data.silent ? data.silent : false,
   };
   self.registration.showNotification(title, {
-    ...options
+    ...options,
   });
 };
 function isMethod(request, methods) {
   return methods.includes(request.method.toLowerCase());
 }
 function isAssetRequest(request) {
-  return isMethod(request, ["get"]) && STATIC_ASSETS.some((publicPath) => request.url.startsWith(publicPath));
+  return (
+    isMethod(request, ["get"]) &&
+    STATIC_ASSETS.some((publicPath) => request.url.startsWith(publicPath))
+  );
 }
 function isLoaderRequest(request) {
   const url = new URL(request.url);

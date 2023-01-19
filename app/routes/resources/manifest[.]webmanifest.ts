@@ -68,6 +68,6 @@ export let loader: LoaderFunction = () => {
         "Cache-Control": "public, max-age=600",
         "Content-Type": "application/manifest+json",
       },
-    },
+    }
   );
 };

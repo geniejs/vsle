@@ -44,7 +44,7 @@ async function handleMessage(event: ExtendableMessageEvent) {
         documentUrl,
         documentCache.add(documentUrl).catch((error) => {
           debug(`Failed to cache document for ${documentUrl}:`, error);
-        }),
+        })
       );
     }
 
@@ -62,7 +62,7 @@ async function handleMessage(event: ExtendableMessageEvent) {
               url,
               dataCache.add(url).catch((error) => {
                 debug(`Failed to cache data for ${url}:`, error);
-              }),
+              })
             );
           }
         }
@@ -104,7 +104,10 @@ async function handleFetch(event: FetchEvent): Promise<Response> {
       await cache.put(event.request, response.clone());
       return response;
     } catch (error) {
-      debug("Serving data from network failed, falling back to cache", url.pathname + url.search);
+      debug(
+        "Serving data from network failed, falling back to cache",
+        url.pathname + url.search
+      );
       const response = await caches.match(event.request);
       if (response) {
         response.headers.set("X-Remix-Worker", "yes");
@@ -116,7 +119,7 @@ async function handleFetch(event: FetchEvent): Promise<Response> {
         {
           status: 500,
           headers: { "X-Remix-Catch": "yes", "X-Remix-Worker": "yes" },
-        },
+        }
       );
     }
   }
@@ -129,7 +132,10 @@ async function handleFetch(event: FetchEvent): Promise<Response> {
       await cache.put(event.request, response.clone());
       return response;
     } catch (error) {
-      debug("Serving document from network failed, falling back to cache", url.pathname);
+      debug(
+        "Serving document from network failed, falling back to cache",
+        url.pathname
+      );
       const response = await caches.match(event.request);
       if (response) {
         return response;
@@ -164,7 +170,10 @@ function isMethod(request: Request, methods: string[]) {
 }
 
 function isAssetRequest(request: Request) {
-  return isMethod(request, ["get"]) && STATIC_ASSETS.some((publicPath) => request.url.startsWith(publicPath));
+  return (
+    isMethod(request, ["get"]) &&
+    STATIC_ASSETS.some((publicPath) => request.url.startsWith(publicPath))
+  );
 }
 
 function isLoaderRequest(request: Request) {
@@ -201,7 +210,9 @@ self.addEventListener("push", (event) => {
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     (async () => {
-      const result = {} as { error: unknown; response: Response } | { error: undefined; response: Response };
+      const result = {} as
+        | { error: unknown; response: Response }
+        | { error: undefined; response: Response };
       try {
         result.response = await handleFetch(event);
       } catch (error) {
@@ -209,13 +220,18 @@ self.addEventListener("fetch", (event) => {
       }
 
       return appHandleFetch(event, result);
-    })(),
+    })()
   );
 });
 
 async function appHandleFetch(
   event: FetchEvent,
-  { error, response }: { error: unknown; response: Response } | { error: undefined; response: Response },
+  {
+    error,
+    response,
+  }:
+    | { error: unknown; response: Response }
+    | { error: undefined; response: Response }
 ): Promise<Response> {
   return response;
 }

@@ -49,9 +49,6 @@ export function authjsDefaultCookies(useSecureCookies: boolean) {
   };
 }
 
-export const getPathForRouter = (
-  url: URL,
-    rootHost: string = "",
-): string => {
-  return url.href.replace(rootHost, '')
+export const getPathForRouter = (url: URL, rootHost: string = ""): string => {
+  return url.href.replace(rootHost, "");
 };
