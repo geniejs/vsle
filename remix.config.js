@@ -17,6 +17,7 @@ withEsbuildOverride((option, { isServer, isDev }) => {
       }),
     };
   }
+  option.external = ["nodemailer"];
   return option;
 });
 
@@ -29,6 +30,8 @@ module.exports = {
     "@auth/core",
     "oauth4webapi",
     "@auth/core/providers/google",
+    "@auth/core/providers/email",
+    "@novu/node",
     "preact-render-to-string",
   ],
 };

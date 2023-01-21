@@ -30,7 +30,7 @@ export default function Index() {
                 type="submit"
                 disabled={fetcher.state === "submitting"}
               >
-                Sign Out <div className="i-material-symbols-logout" />
+                Sign Out <div className="i-fe-logout" />
               </button>
             </p>
           </fetcher.Form>
@@ -48,7 +48,7 @@ export default function Index() {
               type="submit"
               disabled={fetcher.state === "submitting"}
             >
-              Sign In <div className="i-material-symbols-login" />
+              Sign In <div className="i-fe-login" />
             </button>
           </p>
         </fetcher.Form>

@@ -1,5 +1,5 @@
 diff --git a/node_modules/@remix-run/dev/dist/config.d.ts b/node_modules/@remix-run/dev/dist/config.d.ts
-index 30160bf..f3939b4 100644
+index 2733c29..1db6f78 100644
 --- a/node_modules/@remix-run/dev/dist/config.d.ts
 +++ b/node_modules/@remix-run/dev/dist/config.d.ts
 @@ -7,7 +7,7 @@ export interface RemixMdxConfig {
@@ -9,13 +9,13 @@ index 30160bf..f3939b4 100644
 -export declare type ServerPlatform = "node" | "neutral";
 +export declare type ServerPlatform = "node" | "neutral" | "browser";
  interface FutureConfig {
-     v2_meta: boolean;
- }
+     unstable_cssModules: boolean;
+     unstable_cssSideEffectImports: boolean;
 diff --git a/node_modules/@remix-run/dev/dist/config.js b/node_modules/@remix-run/dev/dist/config.js
-index c374f66..7b79958 100644
+index 4212b6f..e49da01 100644
 --- a/node_modules/@remix-run/dev/dist/config.js
 +++ b/node_modules/@remix-run/dev/dist/config.js
-@@ -89,7 +89,7 @@ async function readConfig(remixRoot, serverMode = serverModes.ServerMode.Product
+@@ -90,7 +90,7 @@ async function readConfig(remixRoot, serverMode = serverModes.ServerMode.Product
      case "cloudflare-workers":
      case "deno":
        serverModuleFormat = "esm";

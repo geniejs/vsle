@@ -1,6 +1,10 @@
 import { RemixAuthenticator } from "remix-auth/src/lib";
 import Google from "@auth/core/providers/google";
+import { Email } from "@auth/core/providers/email";
 import type { AppLoadContext } from "@remix-run/cloudflare";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { getPrisma } from "./prismadb.server";
+import { Novu } from "@novu/node";
 
 // Create an instance of the authenticator
 let authenticator: RemixAuthenticator<{ user: any }>;
@@ -9,10 +13,37 @@ export const getAuthenticator = (
   env: Record<string, string | undefined> | AppLoadContext
 ) => {
   if (!authenticator) {
+    const novu = new Novu(env.NOVU_API_KEY as string);
+
     authenticator = new RemixAuthenticator(
       {
+        session: {
+          strategy: "jwt",
+        },
         debug: false, // env.NODE_ENV === "development",
+        adapter: PrismaAdapter(getPrisma(env as Record<string, string>)) as any,
         providers: [
+          Email({
+            id: "email",
+            name: "Email Magic Link",
+            server: env.EMAIL_SERVER as string,
+            from: env.EMAIL_FROM as string,
+            type: "email",
+            async sendVerificationRequest(params) {
+              const { identifier, url, provider, theme } = params;
+              const status = await novu.trigger("sendusermagicauthlink", {
+                to: {
+                  subscriberId: identifier,
+                  email: identifier,
+                },
+                payload: {
+                  verificationUrl: url,
+                  verificationCode: url,
+                },
+              });
+              console.log("status", status);
+            },
+          }),
           Google({
             clientId: env.GOOGLE_CLIENT_ID as string,
             clientSecret: env.GOOGLE_CLIENT_SECRET as string,

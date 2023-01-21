@@ -1,0 +1,83 @@
+diff --git a/node_modules/@auth/core/providers/email.js b/node_modules/@auth/core/providers/email.js
+index a75026e..e615ebd 100644
+--- a/node_modules/@auth/core/providers/email.js
++++ b/node_modules/@auth/core/providers/email.js
+@@ -1,4 +1,3 @@
+-import { createTransport } from "nodemailer";
+ /** TODO: */
+ export function Email(config) {
+     return {
+@@ -8,21 +7,8 @@ export function Email(config) {
+         server: { host: "localhost", port: 25, auth: { user: "", pass: "" } },
+         from: "Auth.js <no-reply@authjs.dev>",
+         maxAge: 24 * 60 * 60,
+-        async sendVerificationRequest(params) {
+-            const { identifier, url, provider, theme } = params;
+-            const { host } = new URL(url);
+-            const transport = createTransport(provider.server);
+-            const result = await transport.sendMail({
+-                to: identifier,
+-                from: provider.from,
+-                subject: `Sign in to ${host}`,
+-                text: text({ url, host }),
+-                html: html({ url, host, theme }),
+-            });
+-            const failed = result.rejected.concat(result.pending).filter(Boolean);
+-            if (failed.length) {
+-                throw new Error(`Email (${failed.join(", ")}) could not be sent`);
+-            }
++        async sendVerificationRequest() {
++          throw new Error(`Email could not be sent`);
+         },
+         // @ts-expect-error
+         options: config,
+diff --git a/node_modules/@auth/core/src/providers/email.ts b/node_modules/@auth/core/src/providers/email.ts
+index bcf08cb..64a3d53 100644
+--- a/node_modules/@auth/core/src/providers/email.ts
++++ b/node_modules/@auth/core/src/providers/email.ts
+@@ -1,7 +1,5 @@
+-import { createTransport } from "nodemailer"
+ 
+ import type { CommonProviderOptions } from "./index.js"
+-import type { Options as SMTPTransportOptions } from "nodemailer/lib/smtp-transport"
+ import type { Awaitable, Theme } from "../types.js"
+ 
+ export interface SendVerificationRequestParams {
+@@ -29,7 +27,7 @@ export interface SendVerificationRequestParams {
+ export interface EmailConfig extends CommonProviderOptions {
+   type: "email"
+   // TODO: Make use of https://www.typescriptlang.org/docs/handbook/2/template-literal-types.html
+-  server: string | SMTPTransportOptions
++  server: string
+   /** @default `"Auth.js <no-reply@authjs.dev>"` */
+   from?: string
+   /**
+@@ -87,24 +85,12 @@ export function Email(config: EmailConfig): EmailConfig {
+     id: "email",
+     type: "email",
+     name: "Email",
+-    server: { host: "localhost", port: 25, auth: { user: "", pass: "" } },
++    server: '',
+     from: "Auth.js <no-reply@authjs.dev>",
+     maxAge: 24 * 60 * 60,
+-    async sendVerificationRequest(params) {
+-      const { identifier, url, provider, theme } = params
+-      const { host } = new URL(url)
+-      const transport = createTransport(provider.server)
+-      const result = await transport.sendMail({
+-        to: identifier,
+-        from: provider.from,
+-        subject: `Sign in to ${host}`,
+-        text: text({ url, host }),
+-        html: html({ url, host, theme }),
+-      })
+-      const failed = result.rejected.concat(result.pending).filter(Boolean)
+-      if (failed.length) {
+-        throw new Error(`Email (${failed.join(", ")}) could not be sent`)
+-      }
++    async sendVerificationRequest() {
++      throw new Error(`Email could not be sent`)
++
+     },
+     // @ts-expect-error
+     options: config,

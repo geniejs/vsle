@@ -2,8 +2,7 @@
 // Modify your Keystone config when you want to change this.
 
 datasource postgresql {
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  url               = "url"
   provider          = "postgresql"
 }
 
@@ -13,12 +12,55 @@ generator client {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  name      String    @default("")
-  email     String    @unique @default("")
-  password  String
-  posts     Post[]    @relation("Post_author")
-  createdAt DateTime? @default(now())
+  id            String    @id @default(cuid())
+  name          String    @default("")
+  email         String    @unique @default("")
+  emailVerified DateTime?
+  image         String    @default("")
+  posts         Post[]    @relation("Post_author")
+  createdAt     DateTime? @default(now())
+  role          String    @default("user")
+  accounts      Account[] @relation("Account_user")
+  sessions      Session[] @relation("Session_user")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  user              User?   @relation("Account_user", fields: [userId], references: [id])
+  userId            String? @map("user")
+  type              String  @default("")
+  provider          String  @default("")
+  providerAccountId String  @default("")
+  refresh_token     String  @default("")
+  access_token      String  @default("")
+  expires_in        Int?
+  token_type        String  @default("")
+  scope             String  @default("")
+  id_token          String  @default("")
+  session_state     String  @default("")
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@index([providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  user         User?    @relation("Session_user", fields: [userId], references: [id])
+  userId       String?  @map("user")
+  sessionToken String   @unique @default("")
+  expires      DateTime
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid())
+  identifier String   @default("")
+  token      String   @unique @default("")
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model Post {
