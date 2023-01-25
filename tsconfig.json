@@ -8,7 +8,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "target": "ES2019",
-    "strict": true,
+    "strict": false,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
@@ -17,6 +17,8 @@
     },
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
+
 
     // Remix takes care of building everything in `remix build`.
     "noEmit": true

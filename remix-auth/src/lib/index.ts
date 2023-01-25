@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-throw-literal */
 import type {
   DataFunctionArgs,
   AppLoadContext,
 } from "@remix-run/server-runtime";
-import { redirect, json } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import type { Provider, RedirectableProviderType } from "@auth/core/providers";
 import { Auth } from "@auth/core";
 import { parse } from "cookie";
@@ -10,7 +11,6 @@ import {
   getBody,
   getValue,
   authjsDefaultCookies,
-  getPathForRouter,
 } from "remix-auth/src/utils/utils";
 import type { ProviderID, RemixAuthConfig } from "remix-auth/src/types";
 type AuthAction =
@@ -40,7 +40,7 @@ export class RemixAuthenticator<User> {
     options: RemixAuthConfig,
     env: Record<string, string | undefined> | AppLoadContext
   ) {
-    this.options = options ?? {};
+    this.options = options;
     this.options.secret ??= env.AUTH_SECRET as string | undefined;
     this.options.trustHost ??= !!(
       env.AUTH_TRUST_HOST ?? env.NODE_ENV === "development"
@@ -61,9 +61,8 @@ export class RemixAuthenticator<User> {
     params?: DataFunctionArgs["params"];
   }) {
     const url = new URL(request.url);
-    this.options.host ??= url.origin;
     const searchParams = url.searchParams || new URLSearchParams();
-    const formData = (await getBody(request.clone())) || {};
+    const formData = (await getBody(request.clone())) ?? {};
     Object.entries(formData).forEach(([key, val]) => {
       if (typeof val === "string") {
         searchParams.set(key, val);
@@ -82,14 +81,19 @@ export class RemixAuthenticator<User> {
     };
 
     action = action || (getValue("action", searchParams, params) as AuthAction);
-    providerId = providerId || getValue("providerId", searchParams, params);
-    let csrfToken =
+    providerId = providerId ?? getValue("providerId", searchParams, params);
+    const csrfToken =
       cookies[authjsCookies.csrfToken.name] ||
       getValue("csrfToken", searchParams, params);
 
+    console.log(
+      'getValue("callbackUrl", searchParams, params)',
+      getValue("callbackUrl", searchParams, params)
+    );
     const callbackUrl =
-      cookies[authjsCookies.callbackUrl.name] ||
-      getValue("callbackUrl", searchParams, params);
+      getValue("callbackUrl", searchParams, params) ??
+      cookies[authjsCookies.callbackUrl.name] ??
+      url.href;
 
     console.log({
       url,
@@ -110,20 +114,20 @@ export class RemixAuthenticator<User> {
     const isInternal = request.headers.get("X-Remix-Auth-Internal");
     const somethingWentWrong =
       url.searchParams.has("csrf") && url.searchParams.get("csrf") === "true";
-    let authResult: Response | undefined = undefined;
+    let authResult: Response | undefined;
     if (!providerId && isPost) {
       // IF POST, PROVIDER IS REQUIRED
       status.body = 'Missing "provider" parameter';
     } else if (!action || !actions.includes(action as AuthAction)) {
-      //ACTION IS REQUIRED
+      // ACTION IS REQUIRED
       status.body = 'Invalid/Missing "action" parameter';
     } else if (somethingWentWrong) {
       status.body = "Something went wrong, perhaps a bad provider?";
     } else {
-      //SEEMS VALID
+      // SEEMS VALID
       if (action === "callback") {
         // if a callback action we just let AuthJS handle it
-        return Auth(request, this.options);
+        return await Auth(request, this.options);
       } else if ((!csrfToken || !isInternal) && isPost) {
         // IF IT IS A POST, fresh csrfToken IS REQUIRED
         // So figure out the path to the csrf endpoint
@@ -144,14 +148,12 @@ export class RemixAuthenticator<User> {
           "remixAuthRedirectUrlMethod",
           method
         );
-        return redirect(
-          getPathForRouter(remixAuthRedirectUrl, this.options.host),
-          {
-            headers: {
-              "X-Remix-Auth-Internal": "1",
-            },
-          }
-        );
+        remixAuthRedirectUrl.searchParams.set("callbackUrl", callbackUrl);
+        return redirect(remixAuthRedirectUrl.href, {
+          headers: {
+            "X-Remix-Auth-Internal": "1",
+          },
+        });
       } else if (
         csrfToken &&
         !isPost &&
@@ -166,14 +168,14 @@ export class RemixAuthenticator<User> {
         const fetchResult = await fetch(fetchUrl, {
           method: "POST",
           headers: {
-            Cookie: request.headers.get("Cookie") as string,
+            Cookie: request.headers.get("Cookie") ?? "",
             "Content-Type": "application/x-www-form-urlencoded",
             "X-Auth-Return-Redirect": "1",
             "X-Remix-Auth-Internal": "1",
           },
           body: url.searchParams,
         });
-        const data = (await fetchResult.clone().json()) as { url: string };
+        const data: { url: string } = await fetchResult.clone().json();
         const error = new URL(data.url).searchParams.get("error");
         const redirectPost = getValue("redirect", searchParams, params) ?? true;
         // TODO: Support custom providers
@@ -185,7 +187,7 @@ export class RemixAuthenticator<User> {
           mutableRes.headers.set("X-Remix-Auth-Internal", "1");
           mutableRes.headers.delete("Content-Type");
           const redirectUrl = new URL(data.url ?? callbackUrl);
-          return redirect(getPathForRouter(redirectUrl, this.options.host), {
+          return redirect(redirectUrl.href, {
             ...mutableRes,
             status: 302,
             headers: mutableRes.headers,
@@ -199,7 +201,7 @@ export class RemixAuthenticator<User> {
           authResult = new Response(fetchResult.body, { status: 500 });
         }
       } else if (isPost) {
-        //other posts let Authjs handle it
+        // other posts let Authjs handle it
         const result = await Auth(request, this.options);
         return result;
       } else {
@@ -213,10 +215,7 @@ export class RemixAuthenticator<User> {
           searchParams.forEach((val, key) => {
             remixAuthRedirectUrl.searchParams.set(key, val);
           });
-          const authJson = ((await result.clone().json()) || {}) as Record<
-            string,
-            any
-          >;
+          const authJson = (await result.clone().json()) || {};
           Object.keys(authJson).forEach((key) => {
             remixAuthRedirectUrl.searchParams.set(key, authJson[key]);
           });
@@ -224,14 +223,11 @@ export class RemixAuthenticator<User> {
           const mutableAuthResult = new Response(result.body, result);
           mutableAuthResult.headers.set("X-Remix-Auth-Internal", "1");
           mutableAuthResult.headers.delete("Content-Type");
-          return redirect(
-            getPathForRouter(remixAuthRedirectUrl, this.options.host),
-            {
-              ...mutableAuthResult,
-              status: 302,
-              headers: mutableAuthResult.headers,
-            }
-          );
+          return redirect(remixAuthRedirectUrl.href, {
+            ...mutableAuthResult,
+            status: 302,
+            headers: mutableAuthResult.headers,
+          });
         } else {
           authResult = result;
         }
@@ -257,7 +253,7 @@ export class RemixAuthenticator<User> {
           "type",
           url.searchParams.get("type") ?? ""
         );
-        return redirect(getPathForRouter(redirectUrl, this.options.host), {});
+        return redirect(redirectUrl.href, {});
       } else {
         return authResult;
       }
@@ -274,11 +270,7 @@ export class RemixAuthenticator<User> {
     const request = new Request(url, { headers: req.headers });
     const response = await Auth(request, this.options);
     const { status = 200 } = response;
-    const data = (await response.json()) as {
-      user?: User;
-      message?: string;
-      error?: string;
-    };
+    const data: Record<string, any> = await response.json();
 
     if (!data || !Object.keys(data).length) return null;
     if (status === 200) return data;
@@ -340,7 +332,7 @@ export class RemixAuthenticator<User> {
   ): Promise<User | null> {
     const session = await this.getSession(request);
 
-    if (session && session.user) {
+    if (session?.user) {
       if (options.successRedirect) throw redirect(options.successRedirect);
       else return session.user;
     }
@@ -354,17 +346,10 @@ export class RemixAuthenticator<User> {
     const request = new Request(url, { headers: req.headers });
     const response = await Auth(request, this.options);
     const { status = 200 } = response;
-    const data = (await response.json()) as
-      | Record<string, Provider>
-      | {
-          message?: string;
-          error?: string;
-        };
+    const data: Record<string, any> = await response.json();
     if (!data || !Object.keys(data)?.length) return {};
     if (status === 200) return data as Record<string, Provider>;
-    throw new Error(
-      (data?.message as string) || (data?.error as string) || "Unknown error"
-    );
+    throw new Error(data?.message || data?.error || "Unknown error");
   }
 
   isValidAction(action: string | undefined): boolean {

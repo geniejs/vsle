@@ -1,66 +1,20 @@
-import type { ShouldRevalidateFunction } from "react-router-dom";
-import type { ActionFunction } from "@remix-run/cloudflare";
 import { getAuthenticator } from "~/services/auth.server";
 import type { DataFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 
-export const loader = async ({
-  request,
-  params,
-  context,
-}: DataFunctionArgs) => {
-  const authenticator = getAuthenticator(context.env as Record<string, string>);
-  if (authenticator.isValidAction(params.action)) {
-    return authenticator.handleAuthRoute({
-      request,
-      action: params.action!,
-      providerId: params.providerId,
-      params,
-    });
-  } else {
-    const providers = await authenticator.getProviders(request);
-    const user = await authenticator.isAuthenticated(request);
-    return { user, providers };
-  }
-};
+export const loader = async ({ request }: DataFunctionArgs) => {
+  const authenticator = getAuthenticator(process.env as Record<string, string>);
 
-export const action: ActionFunction = async ({ request, params, context }) => {
-  const authenticator = getAuthenticator(context.env as Record<string, string>);
-  console.log("aam action", {
-    params,
-    valid: authenticator.isValidAction(params.action),
-  });
-  if (authenticator.isValidAction(params.action)) {
-    return authenticator.handleAuthRoute({
-      request,
-      action: params.action!,
-      providerId: params.providerId,
-      params,
-    });
-  }
-  return null;
-};
-
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-  currentParams,
-  nextParams,
-  actionResult,
-  defaultShouldRevalidate,
-}) => {
-  console.log();
-  console.log("actionResult", {
-    defaultShouldRevalidate,
-    actionResult,
-    currentParams,
-    nextParams,
-  });
-  return defaultShouldRevalidate;
+  const providers = await authenticator.getProviders(request);
+  const user = await authenticator.isAuthenticated(request);
+  return { user, providers };
 };
 
 export default function Auth() {
   const { user, providers } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const loading = fetcher.state === "loading" || fetcher.state === "submitting";
+
   return (
     <div className="">
       <section className="container">
@@ -107,7 +61,15 @@ export default function Auth() {
                       />
                     </>
                   )}
-
+                  <input
+                    type="hidden"
+                    name="callbackUrl"
+                    value={
+                      typeof document !== "undefined"
+                        ? window.location.href
+                        : ""
+                    }
+                  />
                   <button
                     bg="blue-400 hover:blue-500 dark:blue-500 dark:hover:blue-600"
                     text="sm white"
