@@ -2,7 +2,6 @@ import { RemixBrowser } from "@remix-run/react";
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 import "@unocss/reset/tailwind.css";
-import "./global.css";
 function hydrate() {
   startTransition(() => {
     hydrateRoot(

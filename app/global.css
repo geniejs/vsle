@@ -43,7 +43,10 @@
 .cell-reveal.present {
   animation-name: revealPresentCharCell;
 }
-
+.font-sans .letter-container {
+  position: relative;
+  top: 5%;
+}
 .cell-reveal > .letter-container {
   animation: offsetLetterFlip 0.35s linear;
   animation-fill-mode: backwards;
@@ -185,3 +188,4 @@ svg.cursor-pointer:hover {
     transform: translate(0, 0);
   }
 }
+

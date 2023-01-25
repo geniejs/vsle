@@ -1,0 +1,15 @@
+diff --git a/node_modules/@vespaiach/axios-fetch-adapter/index.js b/node_modules/@vespaiach/axios-fetch-adapter/index.js
+index 527e282..4799008 100644
+--- a/node_modules/@vespaiach/axios-fetch-adapter/index.js
++++ b/node_modules/@vespaiach/axios-fetch-adapter/index.js
+@@ -46,8 +46,9 @@ export default async function fetchAdapter(config) {
+ async function getResponse(request, config) {
+     let stageOne;
+     try {
+-        stageOne = await fetch(request);
++        stageOne = await fetch(new URL(request.url), request);
+     } catch (e) {
++        console.error('e', e)
+         return createError('Network Error', config, 'ERR_NETWORK', request);
+     }
+ 

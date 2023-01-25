@@ -7,7 +7,7 @@ import { getPrisma } from "./prismadb.server";
 import { Novu } from "@novu/node";
 
 // Create an instance of the authenticator
-let authenticator: RemixAuthenticator<{ user: any }>;
+let authenticator: RemixAuthenticator<Record<string, unknown>>;
 
 export const getAuthenticator = (
   env: Record<string, string | undefined> | AppLoadContext
@@ -20,7 +20,7 @@ export const getAuthenticator = (
         session: {
           strategy: "jwt",
         },
-        debug: false, // env.NODE_ENV === "development",
+        debug: env.NODE_ENV === "development",
         adapter: PrismaAdapter(getPrisma(env as Record<string, string>)) as any,
         providers: [
           Email({
@@ -31,14 +31,14 @@ export const getAuthenticator = (
             type: "email",
             async sendVerificationRequest(params) {
               const { identifier, url, provider, theme } = params;
-              const status = await novu.trigger("sendusermagicauthlink", {
+              console.log("url", url);
+              const status = await novu.trigger("sendvslemagicemaillink", {
                 to: {
                   subscriberId: identifier,
                   email: identifier,
                 },
                 payload: {
                   verificationUrl: url,
-                  verificationCode: url,
                 },
               });
               console.log("status", status);

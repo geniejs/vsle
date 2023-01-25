@@ -17,7 +17,6 @@ withEsbuildOverride((option, { isServer, isDev }) => {
       }),
     };
   }
-  option.external = ["nodemailer"];
   return option;
 });
 
@@ -34,4 +33,9 @@ module.exports = {
     "@novu/node",
     "preact-render-to-string",
   ],
+  future: {
+    unstable_cssModules: false,
+    unstable_vanillaExtract: false,
+    unstable_cssSideEffectImports: false,
+  },
 };

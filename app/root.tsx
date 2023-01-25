@@ -2,6 +2,7 @@ import React from "react";
 import { useFetcher, useLocation, useMatches } from "@remix-run/react";
 import type { MetaFunction } from "@remix-run/cloudflare";
 import type { LinksFunction } from "@remix-run/cloudflare";
+import { cssBundleHref } from "@remix-run/css-bundle";
 
 import {
   Links,
@@ -11,11 +12,11 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import global from "./global.css";
 import reset from "@unocss/reset/tailwind.css";
+import pico from "@picocss/pico/css/pico.css";
 import uno from "./uno.css";
-
-import Div100vh from "react-div-100vh";
+import global from "./global.css";
+import { use100vh } from "react-div-100vh";
 
 let isMount = true;
 export const meta: MetaFunction = () => ({
@@ -25,9 +26,10 @@ export const meta: MetaFunction = () => ({
 });
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: global },
+  { rel: "stylesheet", href: pico },
   { rel: "stylesheet", href: reset },
   { rel: "stylesheet", href: uno },
+  { rel: "stylesheet", href: global },
 ];
 export default function App() {
   let location = useLocation();
@@ -65,19 +67,26 @@ export default function App() {
       }
     }
   }, [location, matches]);
-
+  const vh = use100vh();
   return (
-    <html className="font-sans" lang="en">
+    <html
+      className="font-sans"
+      lang="en"
+      style={{ minHeight: `${vh}px`, height: `${vh}px` }}
+    >
       <head>
         <Meta />
         <link rel="manifest" href="/resources/manifest.webmanifest" />
         <Links />
       </head>
-      <body className="bg-richblue-200">
-        <Div100vh>
+      <body className="bg-richblue-200 h-full">
+        <header></header>
+        <main>
           <Outlet />
           <ScrollRestoration /> <Scripts /> <LiveReload />
-        </Div100vh>
+        </main>
+
+        <footer></footer>
       </body>
     </html>
   );

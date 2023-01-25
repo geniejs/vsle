@@ -17,4 +17,6 @@ export interface RemixAuthConfig extends AuthConfig {
   trustHost?: boolean;
   secret?: string;
   host?: string;
+  //deafults to false, will need to properly handle for fetch requests
+  allowHtmlReturn?: boolean;
 }
