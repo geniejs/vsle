@@ -5,7 +5,7 @@ import {
 import { BaseModal } from "./BaseModal";
 import { SettingsToggle } from "./SettingsToggle";
 
-type Props = {
+interface Props {
   isOpen: boolean;
   handleClose: () => void;
   isHardMode: boolean;
@@ -14,7 +14,7 @@ type Props = {
   handleDarkMode: Function;
   isHighContrastMode: boolean;
   handleHighContrastMode: Function;
-};
+}
 
 export const SettingsModal = ({
   isOpen,

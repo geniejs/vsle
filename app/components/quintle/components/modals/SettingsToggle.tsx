@@ -1,11 +1,11 @@
 import clsx from "clsx";
 
-type Props = {
+interface Props {
   settingName: string;
   flag: boolean;
   handleFlag: Function;
   description?: string;
-};
+}
 
 export const SettingsToggle = ({
   settingName,

@@ -3,13 +3,13 @@ import { CompletedRow } from "./CompletedRow";
 import { CurrentRow } from "./CurrentRow";
 import { EmptyRow } from "./EmptyRow";
 
-type Props = {
+interface Props {
   solution: string;
   guesses: string[];
   currentGuess: string;
   isRevealing?: boolean;
   currentRowClassName: string;
-};
+}
 
 export const Grid = ({
   solution,

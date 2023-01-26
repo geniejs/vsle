@@ -4,11 +4,11 @@ import {
   SUCCESS_RATE_TEXT,
   TOTAL_TRIES_TEXT,
 } from "../../constants/strings";
-import { GameStats } from "../../lib/localStorage.client";
+import { type GameStats } from "../../lib/localStorage.client";
 
-type Props = {
+interface Props {
   gameStats: GameStats;
-};
+}
 
 const StatItem = ({
   label,

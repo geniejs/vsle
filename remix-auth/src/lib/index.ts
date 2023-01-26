@@ -82,9 +82,6 @@ export class RemixAuthenticator<User> {
 
     action = action || (getValue("action", searchParams, params) as AuthAction);
     providerId = providerId ?? getValue("providerId", searchParams, params);
-    const csrfToken =
-      cookies[authjsCookies.csrfToken.name] ||
-      getValue("csrfToken", searchParams, params);
 
     console.log(
       'getValue("callbackUrl", searchParams, params)',
@@ -111,162 +108,20 @@ export class RemixAuthenticator<User> {
     };
 
     const isPost = method === "POST";
-    const isInternal = request.headers.get("X-Remix-Auth-Internal");
-    const somethingWentWrong =
-      url.searchParams.has("csrf") && url.searchParams.get("csrf") === "true";
-    let authResult: Response | undefined;
-    if (!providerId && isPost) {
+    if (!providerId && isPost && action !== "signout") {
       // IF POST, PROVIDER IS REQUIRED
       status.body = 'Missing "provider" parameter';
     } else if (!action || !actions.includes(action as AuthAction)) {
       // ACTION IS REQUIRED
       status.body = 'Invalid/Missing "action" parameter';
-    } else if (somethingWentWrong) {
-      status.body = "Something went wrong, perhaps a bad provider?";
     } else {
-      // SEEMS VALID
-      if (action === "callback") {
-        // if a callback action we just let AuthJS handle it
-        return await Auth(request, this.options);
-      } else if ((!csrfToken || !isInternal) && isPost) {
-        // IF IT IS A POST, fresh csrfToken IS REQUIRED
-        // So figure out the path to the csrf endpoint
-        const csrfPath =
-          String(url.href).replace(`/${action}`, "/csrf").split("/csrf")[0] +
-          "/csrf";
-        const remixAuthRedirectUrl = new URL(csrfPath);
-        const formData = await request.formData();
-        // Set the form data as query params on the redirect url
-        formData.forEach((val, key) => {
-          if (typeof val === "string") {
-            remixAuthRedirectUrl.searchParams.set(key, val);
-          }
-        });
-        // and set the current path as the remixAuthRedirectUrl
-        remixAuthRedirectUrl.searchParams.set("remixAuthRedirectUrl", url.href);
-        remixAuthRedirectUrl.searchParams.set(
-          "remixAuthRedirectUrlMethod",
-          method
-        );
-        remixAuthRedirectUrl.searchParams.set("callbackUrl", callbackUrl);
-        return redirect(remixAuthRedirectUrl.href, {
-          headers: {
-            "X-Remix-Auth-Internal": "1",
-          },
-        });
-      } else if (
-        csrfToken &&
-        !isPost &&
-        action &&
-        providerId &&
-        searchParams.get("remixAuthRedirectUrlMethod") === "POST"
-      ) {
-        // If we redirected a post request to get the csrfToken do the post request now
-        url.searchParams.delete("remixAuthRedirectUrlMethod");
-        url.searchParams.set("_data", "");
-        const fetchUrl = new URL(url.origin + url.pathname);
-        const fetchResult = await fetch(fetchUrl, {
-          method: "POST",
-          headers: {
-            Cookie: request.headers.get("Cookie") ?? "",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-Auth-Return-Redirect": "1",
-            "X-Remix-Auth-Internal": "1",
-          },
-          body: url.searchParams,
-        });
-        const data: { url: string } = await fetchResult.clone().json();
-        const error = new URL(data.url).searchParams.get("error");
-        const redirectPost = getValue("redirect", searchParams, params) ?? true;
-        // TODO: Support custom providers
-        const isCredentials = providerId === "credentials";
-        const isEmail = providerId === "email";
-        const isSupportingReturn = isCredentials || isEmail;
-        if ((redirectPost || !isSupportingReturn) && !error) {
-          const mutableRes = new Response(fetchResult.body, fetchResult);
-          mutableRes.headers.set("X-Remix-Auth-Internal", "1");
-          mutableRes.headers.delete("Content-Type");
-          const redirectUrl = new URL(data.url ?? callbackUrl);
-          return redirect(redirectUrl.href, {
-            ...mutableRes,
-            status: 302,
-            headers: mutableRes.headers,
-          });
-        }
-        if (error) {
-          this.options?.logger?.error
-            ? this.options.logger.error(error)
-            : console.error(error);
-
-          authResult = new Response(fetchResult.body, { status: 500 });
-        }
-      } else if (isPost) {
-        // other posts let Authjs handle it
-        const result = await Auth(request, this.options);
-        return result;
-      } else {
-        // If we got here it is a get request so let auth handle, potentially with a redirect
-        const result = await Auth(request, this.options);
-        if (searchParams.has("remixAuthRedirectUrl")) {
-          const remixAuthRedirectUrl = new URL(
-            searchParams.get("remixAuthRedirectUrl")!
-          );
-          searchParams.delete("remixAuthRedirectUrl");
-          searchParams.forEach((val, key) => {
-            remixAuthRedirectUrl.searchParams.set(key, val);
-          });
-          const authJson = (await result.clone().json()) || {};
-          Object.keys(authJson).forEach((key) => {
-            remixAuthRedirectUrl.searchParams.set(key, authJson[key]);
-          });
-
-          const mutableAuthResult = new Response(result.body, result);
-          mutableAuthResult.headers.set("X-Remix-Auth-Internal", "1");
-          mutableAuthResult.headers.delete("Content-Type");
-          return redirect(remixAuthRedirectUrl.href, {
-            ...mutableAuthResult,
-            status: 302,
-            headers: mutableAuthResult.headers,
-          });
-        } else {
-          authResult = result;
-        }
-      }
+      return await Auth(request, this.options);
     }
 
-    if (authResult) {
-      if (
-        !isPost &&
-        !this.options.allowHtmlReturn &&
-        authResult.status === 200 &&
-        authResult.headers.get("Content-Type") === "text/html"
-      ) {
-        const redirectUrl = callbackUrl
-          ? new URL(callbackUrl)
-          : new URL(url.host);
-        redirectUrl.searchParams.set("action", action);
-        redirectUrl.searchParams.set(
-          "provider",
-          providerId ?? url.searchParams.get("provider") ?? ""
-        );
-        redirectUrl.searchParams.set(
-          "type",
-          url.searchParams.get("type") ?? ""
-        );
-        redirectUrl.searchParams.set(
-          "error",
-          url.searchParams.get("error") ?? ""
-        );
-        return redirect(redirectUrl.href, {});
-      } else {
-        return authResult;
-      }
-    } else {
-      throw new Response(status.body, {
-        status: status.status,
-        statusText: status.body,
-      });
-    }
+    throw new Response(status.body, {
+      status: status.status,
+      statusText: status.body,
+    });
   }
 
   async getSession(req: Request): Promise<{ user?: User } | null> {

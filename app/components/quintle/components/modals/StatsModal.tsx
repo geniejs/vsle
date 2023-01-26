@@ -14,7 +14,7 @@ import {
   SHARE_TEXT,
   STATISTICS_TITLE,
 } from "../../constants/strings";
-import { GameStats } from "../../lib/localStorage.client";
+import { type GameStats } from "../../lib/localStorage.client";
 import { shareStatus } from "../../lib/share";
 import { solutionGameDate, tomorrow } from "../../lib/words";
 import { Histogram } from "../stats/Histogram";
@@ -22,7 +22,7 @@ import { MigrationIntro } from "../stats/MigrationIntro";
 import { StatBar } from "../stats/StatBar";
 import { BaseModal } from "./BaseModal";
 
-type Props = {
+interface Props {
   isOpen: boolean;
   handleClose: () => void;
   solution: string;
@@ -38,7 +38,7 @@ type Props = {
   isDarkMode: boolean;
   isHighContrastMode: boolean;
   numberOfGuessesMade: number;
-};
+}
 
 export const StatsModal = ({
   isOpen,

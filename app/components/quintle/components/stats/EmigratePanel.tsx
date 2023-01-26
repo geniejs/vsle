@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { copyTextToClipboard } from "../../lib/clipboard";
 import { encrypt } from "../../lib/encryption";
 import {
-  GameStats,
+  type GameStats,
   loadGameStateFromLocalStorage,
 } from "../../lib/localStorage.client";
 import { loadStats } from "../../lib/stats";
-import { MigrationStats } from "../modals/MigrateStatsModal";
+import { type MigrationStats } from "../modals/MigrateStatsModal";
 
 export const EmigratePanel = () => {
   const [isCopyButtonEnabled, setIsCopyButtonEnabled] = useState(true);
@@ -21,7 +21,7 @@ export const EmigratePanel = () => {
   }, []);
   const migrationStats: MigrationStats = {
     statistics: stats,
-    gameState: gameState,
+    gameState,
   };
 
   const emigrationCode = encrypt(JSON.stringify(migrationStats));

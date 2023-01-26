@@ -2,15 +2,15 @@ import clsx from "clsx";
 
 import { REVEAL_TIME_MS } from "../../constants/settings";
 import { getStoredIsHighContrastMode } from "../../lib/localStorage.client";
-import { CharStatus } from "../../lib/statuses";
+import { type CharStatus } from "../../lib/statuses";
 
-type Props = {
+interface Props {
   value?: string;
   status?: CharStatus;
   isRevealing?: boolean;
   isCompleted?: boolean;
   position?: number;
-};
+}
 
 export const Cell = ({
   value,

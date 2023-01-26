@@ -1,5 +1,5 @@
 import { ClockIcon } from "@heroicons/react/24/outline";
-import { format } from "date-fns";
+import { format , startOfToday } from "date-fns";
 import { default as GraphemeSplitter } from "grapheme-splitter";
 import { useEffect, useState } from "react";
 
@@ -50,7 +50,6 @@ import {
   solutionGameDate,
   unicodeLength,
 } from "./lib/words";
-import { startOfToday } from "date-fns";
 
 function Quintle() {
   const isLatestGame = getIsLatestGame ? getIsLatestGame() : false;
@@ -173,7 +172,7 @@ function Quintle() {
 
       showSuccessAlert(winMessage, {
         delayMs,
-        onClose: () => setIsStatsModalOpen(true),
+        onClose: () => { setIsStatsModalOpen(true); },
       });
     }
 
@@ -207,16 +206,16 @@ function Quintle() {
 
     if (!(unicodeLength(currentGuess) === solution.length)) {
       setCurrentRowClass("jiggle");
-      return showErrorAlert(NOT_ENOUGH_LETTERS_MESSAGE, {
+      showErrorAlert(NOT_ENOUGH_LETTERS_MESSAGE, {
         onClose: clearCurrentRowClass,
-      });
+      }); return;
     }
 
     if (!isWordInWordList(currentGuess)) {
       setCurrentRowClass("jiggle");
-      return showErrorAlert(WORD_NOT_FOUND_MESSAGE, {
+      showErrorAlert(WORD_NOT_FOUND_MESSAGE, {
         onClose: clearCurrentRowClass,
-      });
+      }); return;
     }
 
     // enforce hard mode - all guesses must contain all previously revealed letters
@@ -224,9 +223,9 @@ function Quintle() {
       const firstMissingReveal = findFirstUnusedReveal(currentGuess, guesses);
       if (firstMissingReveal) {
         setCurrentRowClass("jiggle");
-        return showErrorAlert(firstMissingReveal, {
+        showErrorAlert(firstMissingReveal, {
           onClose: clearCurrentRowClass,
-        });
+        }); return;
       }
     }
 
@@ -251,7 +250,7 @@ function Quintle() {
         if (isLatestGame && stats) {
           setStats(addStatsForCompletedGame(stats, guesses.length));
         }
-        return setIsGameWon(true);
+        setIsGameWon(true); return;
       }
 
       if (guesses.length === MAX_CHALLENGES - 1) {
@@ -298,23 +297,23 @@ function Quintle() {
         />
         <InfoModal
           isOpen={isInfoModalOpen}
-          handleClose={() => setIsInfoModalOpen(false)}
+          handleClose={() => { setIsInfoModalOpen(false); }}
         />
         {stats && (
           <StatsModal
             isOpen={isStatsModalOpen}
-            handleClose={() => setIsStatsModalOpen(false)}
+            handleClose={() => { setIsStatsModalOpen(false); }}
             solution={solution}
             guesses={guesses}
             gameStats={stats}
             isLatestGame={isLatestGame}
             isGameLost={isGameLost}
             isGameWon={isGameWon}
-            handleShareToClipboard={() => showSuccessAlert(GAME_COPIED_MESSAGE)}
+            handleShareToClipboard={() => { showSuccessAlert(GAME_COPIED_MESSAGE); }}
             handleShareFailure={() =>
-              showErrorAlert(SHARE_FAILURE_TEXT, {
+              { showErrorAlert(SHARE_FAILURE_TEXT, {
                 durationMs: LONG_ALERT_TIME_MS,
-              })
+              }); }
             }
             handleMigrateStatsButton={() => {
               setIsStatsModalOpen(false);
@@ -333,15 +332,15 @@ function Quintle() {
             setIsDatePickerModalOpen(false);
             setGameDate(d);
           }}
-          handleClose={() => setIsDatePickerModalOpen(false)}
+          handleClose={() => { setIsDatePickerModalOpen(false); }}
         />
         <MigrateStatsModal
           isOpen={isMigrateStatsModalOpen}
-          handleClose={() => setIsMigrateStatsModalOpen(false)}
+          handleClose={() => { setIsMigrateStatsModalOpen(false); }}
         />
         <SettingsModal
           isOpen={isSettingsModalOpen}
-          handleClose={() => setIsSettingsModalOpen(false)}
+          handleClose={() => { setIsSettingsModalOpen(false); }}
           isHardMode={isHardMode}
           handleHardMode={handleHardMode}
           isDarkMode={isDarkMode}

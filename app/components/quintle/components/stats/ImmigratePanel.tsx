@@ -6,7 +6,7 @@ import {
   saveGameStateToLocalStorage,
   saveStatsToLocalStorage,
 } from "../../lib/localStorage.client";
-import { MigrationStats } from "../modals/MigrateStatsModal";
+import { type MigrationStats } from "../modals/MigrateStatsModal";
 
 export const ImmigratePanel = () => {
   const [isSaveButtonEnabled, setIsSaveButtonEnabled] = useState(false);
@@ -57,7 +57,7 @@ export const ImmigratePanel = () => {
         "Are you sure you want to override the statistics on this device? This action is not reversable."
       )
     ) {
-      var migrationStats = JSON.parse(
+      const migrationStats = JSON.parse(
         decrypt(textarea.value) ?? ""
       ) as MigrationStats;
       if (!migrationStats) return;
@@ -85,7 +85,7 @@ export const ImmigratePanel = () => {
         Paste your migration code:
       </label>
       <textarea
-        onChange={(e) => handleImmigrationCodeChange(e)}
+        onChange={(e) => { handleImmigrationCodeChange(e); }}
         id="immigration-code"
         rows={8}
         className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"

@@ -2,12 +2,12 @@ import { Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment } from "react";
 
-type Props = {
+interface Props {
   isOpen: boolean;
   message: string;
   variant?: "success" | "error";
   topMost?: boolean;
-};
+}
 
 export const Alert = ({
   isOpen,

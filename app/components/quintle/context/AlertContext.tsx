@@ -1,5 +1,5 @@
 import {
-  ReactNode,
+  type ReactNode,
   createContext,
   useCallback,
   useContext,
@@ -10,20 +10,20 @@ import { ALERT_TIME_MS } from "../constants/settings";
 
 type AlertStatus = "success" | "error" | undefined;
 
-type ShowOptions = {
+interface ShowOptions {
   persist?: boolean;
   delayMs?: number;
   durationMs?: number;
   onClose?: () => void;
-};
+}
 
-type AlertContextValue = {
+interface AlertContextValue {
   status: AlertStatus;
   message: string | null;
   isVisible: boolean;
   showSuccess: (message: string, options?: ShowOptions) => void;
   showError: (message: string, options?: ShowOptions) => void;
-};
+}
 
 export const AlertContext = createContext<AlertContextValue | null>({
   status: "success",
@@ -36,9 +36,9 @@ AlertContext.displayName = "AlertContext";
 
 export const useAlert = () => useContext(AlertContext) as AlertContextValue;
 
-type Props = {
+interface Props {
   children?: ReactNode;
-};
+}
 
 export const AlertProvider = ({ children }: Props) => {
   const [status, setStatus] = useState<AlertStatus>("success");

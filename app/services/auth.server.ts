@@ -17,7 +17,6 @@ export const getAuthenticator = (
 
     authenticator = new RemixAuthenticator(
       {
-        allowHtmlReturn: true,
         session: {
           strategy: "jwt",
         },
@@ -31,7 +30,7 @@ export const getAuthenticator = (
             from: env.EMAIL_FROM as string,
             type: "email",
             async sendVerificationRequest(params) {
-              const { identifier, url, provider, theme } = params;
+              const { identifier, url } = params;
               if (url.includes("error")) {
                 return;
               }

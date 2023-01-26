@@ -1,10 +1,10 @@
 import { Cell } from "../grid/Cell";
 import { BaseModal } from "./BaseModal";
 
-type Props = {
+interface Props {
   isOpen: boolean;
   handleClose: () => void;
-};
+}
 
 export const InfoModal = ({ isOpen, handleClose }: Props) => {
   return (

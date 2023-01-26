@@ -89,7 +89,7 @@ const attemptShare = (shareData: object) => {
   return (
     // Deliberately exclude Firefox Mobile, because its Web Share API isn't working correctly
     browser.name?.toUpperCase().indexOf("FIREFOX") === -1 &&
-    webShareApiDeviceTypes.indexOf(device.type ?? "") !== -1 &&
+    webShareApiDeviceTypes.includes(device.type ?? "") &&
     navigator.canShare &&
     navigator.canShare(shareData) &&
     navigator.share
@@ -97,7 +97,7 @@ const attemptShare = (shareData: object) => {
 };
 
 const getEmojiTiles = (isDarkMode: boolean, isHighContrastMode: boolean) => {
-  let tiles: string[] = [];
+  const tiles: string[] = [];
   tiles.push(isHighContrastMode ? "🟧" : "🟩");
   tiles.push(isHighContrastMode ? "🟦" : "🟨");
   tiles.push(isDarkMode ? "⬛" : "⬜");

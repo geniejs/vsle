@@ -5,8 +5,8 @@ export type CharStatus = "absent" | "present" | "correct";
 export const getStatuses = (
   solution: string,
   guesses: string[]
-): { [key: string]: CharStatus } => {
-  const charObj: { [key: string]: CharStatus } = {};
+): Record<string, CharStatus> => {
+  const charObj: Record<string, CharStatus> = {};
   const splitSolution = unicodeSplit(solution);
 
   guesses.forEach((word) => {
@@ -17,12 +17,12 @@ export const getStatuses = (
       }
 
       if (letter === splitSolution[i]) {
-        //make status correct
+        // make status correct
         return (charObj[letter] = "correct");
       }
 
       if (charObj[letter] !== "correct") {
-        //make status present
+        // make status present
         return (charObj[letter] = "present");
       }
     });
@@ -47,7 +47,7 @@ export const getGuessStatuses = (
     if (letter === splitSolution[i]) {
       statuses[i] = "correct";
       solutionCharsTaken[i] = true;
-      return;
+      
     }
   });
 
@@ -68,10 +68,10 @@ export const getGuessStatuses = (
     if (indexOfPresentChar > -1) {
       statuses[i] = "present";
       solutionCharsTaken[indexOfPresentChar] = true;
-      return;
+      
     } else {
       statuses[i] = "absent";
-      return;
+      
     }
   });
 

@@ -5,15 +5,15 @@ import { EmigratePanel } from "../stats/EmigratePanel";
 import { ImmigratePanel } from "../stats/ImmigratePanel";
 import { BaseModal } from "./BaseModal";
 
-type Props = {
+interface Props {
   isOpen: boolean;
   handleClose: () => void;
-};
+}
 
-export type MigrationStats = {
+export interface MigrationStats {
   statistics?: GameStats;
   gameState: StoredGameState | null;
-};
+}
 
 export const MigrateStatsModal = ({ isOpen, handleClose }: Props) => {
   const [isEmigrateVisible, setIsEmigrateVisible] = useState(true);
@@ -38,7 +38,7 @@ export const MigrateStatsModal = ({ isOpen, handleClose }: Props) => {
         <div className="mb-4 flex items-center">
           <input
             checked={isEmigrateVisible}
-            onChange={() => setIsEmigrateVisible(true)}
+            onChange={() => { setIsEmigrateVisible(true); }}
             id="emigrate-radio-button"
             radioGroup="migrate-radio-buttons"
             type="radio"
@@ -56,7 +56,7 @@ export const MigrateStatsModal = ({ isOpen, handleClose }: Props) => {
         <div className="flex items-center">
           <input
             checked={!isEmigrateVisible}
-            onChange={() => setIsEmigrateVisible(false)}
+            onChange={() => { setIsEmigrateVisible(false); }}
             id="immigrate-radio-button"
             radioGroup="migrate-radio-buttons"
             type="radio"

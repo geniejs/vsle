@@ -2,12 +2,12 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
 import { Fragment } from "react";
 
-type Props = {
+interface Props {
   title: string;
   children: React.ReactNode;
   isOpen: boolean;
   handleClose: () => void;
-};
+}
 
 export const BaseModal = ({ title, children, isOpen, handleClose }: Props) => {
   return (
@@ -40,7 +40,7 @@ export const BaseModal = ({ title, children, isOpen, handleClose }: Props) => {
           >
             <div className="inline-block transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left align-bottom shadow-xl transition-all dark:bg-gray-800 sm:my-8 sm:w-full sm:max-w-sm sm:p-6 sm:align-middle">
               <button
-                onClick={() => handleClose()}
+                onClick={() => { handleClose(); }}
                 tabIndex={0}
                 aria-pressed="false"
                 className="absolute right-4 top-4"

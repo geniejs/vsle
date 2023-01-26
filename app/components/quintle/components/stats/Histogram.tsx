@@ -1,12 +1,12 @@
-import { GameStats } from "../../lib/localStorage.client";
+import { type GameStats } from "../../lib/localStorage.client";
 import { Progress } from "./Progress";
 
-type Props = {
+interface Props {
   gameStats: GameStats;
   isLatestGame: boolean;
   isGameWon: boolean;
   numberOfGuessesMade: number;
-};
+}
 
 const isCurrentDayStatRow = (
   isLatestGame: boolean,

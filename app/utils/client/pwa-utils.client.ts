@@ -91,7 +91,7 @@ export async function WakeLock(): Promise<ResponseObject> {
     if ("wakeLock" in navigator) {
       // This is an experimental feature!
 
-      //@ts-ignore
+      // @ts-expect-error
       const wakelock = navigator.wakeLock.request("screen");
       if (wakelock) {
         return {
@@ -126,9 +126,9 @@ export async function WakeLock(): Promise<ResponseObject> {
  */
 export async function addBadge(numberCount: number): Promise<ResponseObject> {
   try {
-    //@ts-ignore
+    // @ts-expect-error
     if (navigator.setAppBadge) {
-      //@ts-ignore
+      // @ts-expect-error
       await navigator.setAppBadge(numberCount);
       return {
         status: "success",
@@ -155,9 +155,9 @@ export async function addBadge(numberCount: number): Promise<ResponseObject> {
  */
 export async function removeBadge(): Promise<ResponseObject> {
   try {
-    //@ts-ignore
+    // @ts-expect-error
     if (navigator.clearAppBadge) {
-      //@ts-ignore
+      // @ts-expect-error
       await navigator.clearAppBadge();
       return {
         status: "success",
@@ -259,7 +259,7 @@ export async function SendNotification(
         .query({ name: "notifications" })
         .then((permissionStatus) => {
           if (permissionStatus.state === "granted") {
-            return;
+            
           } else {
             return Notification.requestPermission();
           }
@@ -411,9 +411,9 @@ export async function WebShareLink(
   try {
     if (navigator.canShare({ url })) {
       await navigator.share({
-        title: title,
-        text: text,
-        url: url,
+        title,
+        text,
+        url,
       });
       return {
         status: "success",
@@ -445,13 +445,13 @@ export async function WebShareFile(
   data: any[],
   text: string
 ): Promise<ResponseObject> {
-  let filesArray = [...data];
+  const filesArray = [...data];
   try {
     if (navigator.canShare && navigator.canShare({ files: filesArray })) {
       await navigator.share({
         files: filesArray,
-        title: title,
-        text: text,
+        title,
+        text,
       });
       return {
         status: "success",

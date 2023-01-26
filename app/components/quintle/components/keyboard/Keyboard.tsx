@@ -5,14 +5,14 @@ import { getStatuses } from "../../lib/statuses";
 import { localeAwareUpperCase } from "../../lib/words";
 import { Key } from "./Key";
 
-type Props = {
+interface Props {
   onChar: (value: string) => void;
   onDelete: () => void;
   onEnter: () => void;
   solution: string;
   guesses: string[];
   isRevealing?: boolean;
-};
+}
 
 export const Keyboard = ({
   onChar,

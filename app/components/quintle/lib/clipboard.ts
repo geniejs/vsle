@@ -1,5 +1,5 @@
 const fallbackCopyTextToClipboard = (text: string) => {
-  var textArea = document.createElement("textarea");
+  const textArea = document.createElement("textarea");
   textArea.value = text;
   textArea.style.top = "0";
   textArea.style.left = "0";

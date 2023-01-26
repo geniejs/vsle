@@ -26,7 +26,7 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/entry.worker.js")
-      .then(() => navigator.serviceWorker.ready)
+      .then(async () => await navigator.serviceWorker.ready)
       .then(() => {
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
@@ -57,7 +57,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
 
-  for (var i = 0; i < rawData.length; ++i) {
+  for (let i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i);
   }
   return outputArray;
@@ -70,14 +70,14 @@ navigator.serviceWorker.ready
   })
   .then(async (sub) => {
     if (await sub.subscription) {
-      return sub.subscription;
+      return await sub.subscription;
     }
 
     const subInfo = await fetch("/resources/subscribe");
     const returnedSubscription = await subInfo.text();
 
     const convertedVapidKey = urlBase64ToUint8Array(returnedSubscription);
-    return sub.registration.pushManager.subscribe({
+    return await sub.registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: convertedVapidKey,
     });
@@ -86,7 +86,7 @@ navigator.serviceWorker.ready
     await fetch("./resources/subscribe", {
       method: "POST",
       body: JSON.stringify({
-        subscription: subscription,
+        subscription,
         type: "POST_SUBSCRIPTION",
       }),
     });

@@ -1,10 +1,10 @@
 import { solution, unicodeSplit } from "../../lib/words";
 import { Cell } from "./Cell";
 
-type Props = {
+interface Props {
   guess: string;
   className: string;
-};
+}
 
 export const CurrentRow = ({ guess, className }: Props) => {
   const splitGuess = unicodeSplit(guess);

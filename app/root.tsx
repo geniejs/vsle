@@ -1,10 +1,8 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import React from "react";
-import { useFetcher, useLocation, useMatches } from "@remix-run/react";
-import type { MetaFunction } from "@remix-run/cloudflare";
-import type { LinksFunction } from "@remix-run/cloudflare";
-import { cssBundleHref } from "@remix-run/css-bundle";
-
 import {
+  useLocation,
+  useMatches,
   Links,
   LiveReload,
   Meta,
@@ -12,6 +10,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import type { MetaFunction, LinksFunction } from "@remix-run/cloudflare";
+
 import reset from "@unocss/reset/tailwind.css";
 import pico from "@picocss/pico/css/pico.css";
 import uno from "./uno.css";
@@ -32,10 +32,10 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: global },
 ];
 export default function App() {
-  let location = useLocation();
-  let matches = useMatches();
+  const location = useLocation();
+  const matches = useMatches();
   React.useEffect(() => {
-    let mounted = isMount;
+    const mounted = isMount;
     isMount = false;
     if ("serviceWorker" in navigator) {
       if (navigator.serviceWorker.controller) {
@@ -47,7 +47,7 @@ export default function App() {
           manifest: window.__remixManifest,
         });
       } else {
-        let listener = async () => {
+        const listener = async () => {
           await navigator.serviceWorker.ready;
           navigator.serviceWorker.controller?.postMessage({
             type: "REMIX_NAVIGATION",
@@ -72,7 +72,7 @@ export default function App() {
     <html
       className="font-sans"
       lang="en"
-      style={{ minHeight: `${vh}px`, height: `${vh}px` }}
+      style={{ minHeight: `${vh ?? ""}px`, height: `${vh ?? ""}px` }}
     >
       <head>
         <Meta />

@@ -1,10 +1,10 @@
 const gameStateKey = "gameState";
 const archiveGameStateKey = "archiveGameState";
 const highContrastKey = "highContrast";
-export type StoredGameState = {
+export interface StoredGameState {
   guesses: string[];
   solution: string;
-};
+}
 
 export const saveGameStateToLocalStorage = (
   isLatestGame: boolean,
@@ -22,14 +22,14 @@ export const loadGameStateFromLocalStorage = (isLatestGame: boolean) => {
 
 const gameStatKey = "gameStats";
 
-export type GameStats = {
+export interface GameStats {
   winDistribution: number[];
   gamesFailed: number;
   currentStreak: number;
   bestStreak: number;
   totalGames: number;
   successRate: number;
-};
+}
 
 export const saveStatsToLocalStorage = (gameStats: GameStats) => {
   localStorage.setItem(gameStatKey, JSON.stringify(gameStats));

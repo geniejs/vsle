@@ -26,7 +26,7 @@ async function handleActivate(event: ExtendableEvent) {
 }
 
 async function handleMessage(event: ExtendableMessageEvent) {
-  const cachePromises: Map<string, Promise<void>> = new Map();
+  const cachePromises = new Map<string, Promise<void>>();
 
   if (event.data.type === "REMIX_NAVIGATION") {
     const { isMount, location, matches, manifest } = event.data;
@@ -144,7 +144,7 @@ async function handleFetch(event: FetchEvent): Promise<Response> {
     }
   }
 
-  return fetch(event.request.clone());
+  return await fetch(event.request.clone());
 }
 
 const handlePush = (event: PushEvent) => {
@@ -186,11 +186,11 @@ function isDocumentGetRequest(request: Request) {
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(handleInstall(event).then(() => self.skipWaiting()));
+  event.waitUntil(handleInstall(event).then(async () => { await self.skipWaiting(); }));
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(handleActivate(event).then(() => self.clients.claim()));
+  event.waitUntil(handleActivate(event).then(async () => { await self.clients.claim(); }));
 });
 
 self.addEventListener("message", (event) => {
@@ -219,7 +219,7 @@ self.addEventListener("fetch", (event) => {
         result.error = error;
       }
 
-      return appHandleFetch(event, result);
+      return await appHandleFetch(event, result);
     })()
   );
 });

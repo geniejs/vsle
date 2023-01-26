@@ -1,11 +1,11 @@
 import clsx from "clsx";
 
-type Props = {
+interface Props {
   index: number;
   size: number;
   label: string;
   isCurrentDayStatRow: boolean;
-};
+}
 
 export const Progress = ({
   index,

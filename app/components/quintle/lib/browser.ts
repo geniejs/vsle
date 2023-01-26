@@ -14,5 +14,5 @@ const parser = new UAParser();
 const browser = parser.getBrowser();
 
 export const isInAppBrowser = () => {
-  return inAppBrowserNames.indexOf(browser.name ?? "") > -1;
+  return inAppBrowserNames.includes(browser.name ?? "");
 };

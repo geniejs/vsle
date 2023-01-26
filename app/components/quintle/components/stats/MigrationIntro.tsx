@@ -5,9 +5,9 @@ import {
   MIGRATE_DESCRIPTION_TEXT,
 } from "../../constants/strings";
 
-type Props = {
+interface Props {
   handleMigrateStatsButton: () => void;
-};
+}
 
 export const MigrationIntro = ({ handleMigrateStatsButton }: Props) => {
   return (

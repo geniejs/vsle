@@ -1,12 +1,13 @@
 import { PrismaClient } from "../../prisma/node_modules/.prisma/client/edge";
 
 declare global {
+  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 
 export const getPrisma = (env: Record<string, string>) => {
   const client =
-    globalThis.prisma ||
+    globalThis.prisma ??
     new PrismaClient({
       datasources: {
         postgresql: {

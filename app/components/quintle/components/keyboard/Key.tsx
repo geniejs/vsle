@@ -1,19 +1,19 @@
 import clsx from "clsx";
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 import { REVEAL_TIME_MS } from "../../constants/settings";
 import { getStoredIsHighContrastMode } from "../../lib/localStorage.client";
-import { CharStatus } from "../../lib/statuses";
+import { type CharStatus } from "../../lib/statuses";
 import { solution } from "../../lib/words";
 
-type Props = {
+interface Props {
   children?: ReactNode;
   value: string;
   width?: number;
   status?: CharStatus;
   onClick: (value: string) => void;
   isRevealing?: boolean;
-};
+}
 
 export const Key = ({
   children,
@@ -62,7 +62,7 @@ export const Key = ({
       className={classes}
       onClick={handleClick}
     >
-      {children || value}
+      {children ?? value}
     </button>
   );
 };
