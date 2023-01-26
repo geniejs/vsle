@@ -1,20 +1,20 @@
 import { getAuthenticator } from "~/services/auth.server";
 import type { DataFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData, useFetcher } from "@remix-run/react";
-
 export const loader = async ({ request }: DataFunctionArgs) => {
   const authenticator = getAuthenticator(process.env as Record<string, string>);
 
   const providers = await authenticator.getProviders(request);
   const user = await authenticator.isAuthenticated(request);
-  return { user, providers };
+  const csrfToken = authenticator.getCSRFTokenFromCookie(request);
+  return { user, providers, csrfToken };
 };
 
 export default function Auth() {
-  const { user, providers } = useLoaderData<typeof loader>();
+  const { user, providers, csrfToken } = useLoaderData<typeof loader>();
+  console.log({ csrfToken });
   const fetcher = useFetcher();
   const loading = fetcher.state === "loading" || fetcher.state === "submitting";
-
   return (
     <div className="">
       <section className="container">
@@ -27,7 +27,7 @@ export default function Auth() {
             <h2 className="text-center text-2xl">{user.nickname}</h2>
             <h2 className="text-center text-2xl">{user.username}</h2>
 
-            <fetcher.Form method="post" action="/auth/signout/google">
+            <fetcher.Form method="post" action="/auth/signout">
               <button
                 bg="blue-400 hover:blue-500 dark:blue-500 dark:hover:blue-600"
                 text="sm white"
@@ -68,6 +68,15 @@ export default function Auth() {
                   <input
                     type="hidden"
                     name="callbackUrl"
+                    value={
+                      typeof document !== "undefined"
+                        ? window.location.href
+                        : ""
+                    }
+                  />
+                  <input
+                    type="hidden"
+                    name="csrfCallbackUrl"
                     value={
                       typeof document !== "undefined"
                         ? window.location.href

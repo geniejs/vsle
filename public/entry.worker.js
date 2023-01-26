@@ -136,7 +136,7 @@ async function handleFetch(event) {
       throw error;
     }
   }
-  return fetch(event.request.clone());
+  return await fetch(event.request.clone());
 }
 var handlePush = (event) => {
   const data = JSON.parse(event == null ? void 0 : event.data.text());
@@ -167,10 +167,14 @@ function isDocumentGetRequest(request) {
   return isMethod(request, ["get"]) && request.mode === "navigate";
 }
 self.addEventListener("install", (event) => {
-  event.waitUntil(handleInstall(event).then(() => self.skipWaiting()));
+  event.waitUntil(handleInstall(event).then(async () => {
+    await self.skipWaiting();
+  }));
 });
 self.addEventListener("activate", (event) => {
-  event.waitUntil(handleActivate(event).then(() => self.clients.claim()));
+  event.waitUntil(handleActivate(event).then(async () => {
+    await self.clients.claim();
+  }));
 });
 self.addEventListener("message", (event) => {
   event.waitUntil(handleMessage(event));
@@ -187,7 +191,7 @@ self.addEventListener("fetch", (event) => {
       } catch (error) {
         result.error = error;
       }
-      return appHandleFetch(event, result);
+      return await appHandleFetch(event, result);
     })()
   );
 });
