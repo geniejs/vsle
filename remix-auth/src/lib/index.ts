@@ -6,7 +6,7 @@ import type {
 import { redirect } from "@remix-run/server-runtime";
 import type { Provider, RedirectableProviderType } from "@auth/core/providers";
 import { Auth } from "@auth/core";
-import { parse, serialize } from "cookie";
+import { parse } from "cookie";
 import {
   getBody,
   getValue,
@@ -87,22 +87,6 @@ export class RemixAuthenticator<User> {
       request.headers.get("Referer") ??
       url.href.replace(`/${action}`, "").replace(`/${providerId ?? ""}`, "");
 
-    const csrfCallback =
-      getValue("csrfCallbackUrl", url.searchParams, params) ??
-      cookies[authjsCookies.callbackUrl.name] ??
-      request.headers.get("Referer") ??
-      url.href.replace(`/${action}`, "").replace(`/${providerId ?? ""}`, "");
-
-    console.log({
-      url,
-      method,
-      action,
-      providerId,
-      callbackUrl,
-      referrer: request.headers.get("Referer"),
-      "X-Remix-Auth-Internal": request.headers.get("X-Remix-Auth-Internal"),
-      "X-Auth-Return-Redirect": request.headers.get("X-Auth-Return-Redirect"),
-    });
     const status = {
       status: 400,
       body: "Bad Request",
@@ -116,6 +100,7 @@ export class RemixAuthenticator<User> {
       // ACTION IS REQUIRED
       status.body = 'Invalid/Missing "action" parameter';
     } else {
+      // get the callbackUrl and csrfToken into the request if needed
       url.searchParams.set("callbackUrl", callbackUrl);
       if (csrfToken) {
         [csrfToken] = csrfToken.split("|");
@@ -131,45 +116,7 @@ export class RemixAuthenticator<User> {
         : new Request(url.href, request);
 
       const authResponse = await Auth(authRequest, this.options);
-      console.log("authResponse", authResponse);
-      const location = authResponse.headers.get("Location");
-
-      if (
-        authResponse.status >= 300 &&
-        authResponse.status < 400 &&
-        location?.includes("csrf=true")
-      ) {
-        let csrfToken: string | undefined;
-        const csrfTokenUrl = new URL(
-          `/api/auth/signin?${url.search}`,
-          request.url
-        );
-        const csrfTokenRequest = new Request(csrfTokenUrl, {
-          headers: request.headers,
-        });
-        const csrfTokenResponse = await Auth(csrfTokenRequest, this.options);
-        const csrfTokenResponseSetCookieString =
-          csrfTokenResponse.headers.get("Set-Cookie");
-        if (csrfTokenResponseSetCookieString) {
-          const cookies = parse(csrfTokenResponseSetCookieString);
-          console.log("cookies", cookies);
-          csrfToken = cookies[authjsCookies.csrfToken.name];
-        }
-
-        const csrfCallbackUrl = new URL(csrfCallback);
-        if (!csrfTokenResponseSetCookieString || !csrfToken) {
-          return redirect(authResponse.url, authResponse);
-        }
-        csrfCallbackUrl.searchParams.set("revalidate", Date.now().toString());
-        csrfCallbackUrl.searchParams.set("postPath", request.url);
-        return redirect(csrfCallbackUrl.href, {
-          headers: {
-            "Set-Cookie": csrfTokenResponseSetCookieString,
-          },
-        });
-      } else {
-        return authResponse;
-      }
+      return authResponse;
     }
 
     throw new Response(status.body, {

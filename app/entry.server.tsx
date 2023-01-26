@@ -14,7 +14,6 @@ export default function handleRequest(
   const markup = renderToString(
     <RemixServer context={remixContext} url={request.url} />
   );
-  console.log("BAM handleRequest request.url", request.url);
 
   responseHeaders.set("Content-Type", "text/html");
 
@@ -30,7 +29,5 @@ export const handleDataRequest: HandleDataRequestFunction = (
   // same args that get passed to the action or loader that was called
   { request, params, context }
 ) => {
-  console.log("wham handleDataRequest request.url", request.url);
-
   return response;
 };
