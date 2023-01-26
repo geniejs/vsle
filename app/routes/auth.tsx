@@ -23,6 +23,10 @@ export default function Auth() {
         {user ? (
           <div>
             <h1 className="text-center text-4xl">{user.name}</h1>
+            <h2 className="text-center text-2xl">{user.email}</h2>
+            <h2 className="text-center text-2xl">{user.nickname}</h2>
+            <h2 className="text-center text-2xl">{user.username}</h2>
+
             <fetcher.Form method="post" action="/auth/signout/google">
               <button
                 bg="blue-400 hover:blue-500 dark:blue-500 dark:hover:blue-600"

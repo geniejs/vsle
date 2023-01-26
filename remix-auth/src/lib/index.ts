@@ -253,6 +253,10 @@ export class RemixAuthenticator<User> {
           "type",
           url.searchParams.get("type") ?? ""
         );
+        redirectUrl.searchParams.set(
+          "error",
+          url.searchParams.get("error") ?? ""
+        );
         return redirect(redirectUrl.href, {});
       } else {
         return authResult;

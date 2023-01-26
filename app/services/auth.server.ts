@@ -17,6 +17,7 @@ export const getAuthenticator = (
 
     authenticator = new RemixAuthenticator(
       {
+        allowHtmlReturn: true,
         session: {
           strategy: "jwt",
         },
@@ -31,8 +32,10 @@ export const getAuthenticator = (
             type: "email",
             async sendVerificationRequest(params) {
               const { identifier, url, provider, theme } = params;
-              console.log("url", url);
-              const status = await novu.trigger("sendvslemagicemaillink", {
+              if (url.includes("error")) {
+                return;
+              }
+              await novu.trigger("sendvslemagicemaillink", {
                 to: {
                   subscriberId: identifier,
                   email: identifier,
@@ -41,7 +44,6 @@ export const getAuthenticator = (
                   verificationUrl: url,
                 },
               });
-              console.log("status", status);
             },
           }),
           Google({
