@@ -1,5 +1,5 @@
 import { getAuthenticator } from "~/services/auth.server";
-import type { DataFunctionArgs } from "@remix-run/node";
+import type { DataFunctionArgs } from "@remix-run/cloudflare";
 import type { FetcherWithComponents, FormMethod } from "@remix-run/react";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";

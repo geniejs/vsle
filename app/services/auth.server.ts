@@ -30,19 +30,7 @@ export const getAuthenticator = (
             from: env.EMAIL_FROM as string,
             type: "email",
             async sendVerificationRequest(params) {
-              const { identifier, url } = params;
-              if (url.includes("error")) {
-                return;
-              }
-              await novu.trigger("sendvslemagicemaillink", {
-                to: {
-                  subscriberId: identifier,
-                  email: identifier,
-                },
-                payload: {
-                  verificationUrl: url,
-                },
-              });
+              return undefined;
             },
           }),
           Google({

@@ -1,3 +1,26 @@
+diff --git a/node_modules/@auth/core/lib/routes/shared.js b/node_modules/@auth/core/lib/routes/shared.js
+index 763341e..9bf0476 100644
+--- a/node_modules/@auth/core/lib/routes/shared.js
++++ b/node_modules/@auth/core/lib/routes/shared.js
+@@ -1,9 +1,9 @@
+ import { AuthorizedCallbackError } from "../../errors.js";
+ export async function handleAuthorized(params, { url, logger, callbacks: { signIn } }) {
+-    url.pathname += "/error";
+     try {
+         const authorized = await signIn(params);
+         if (!authorized) {
++            url.pathname += "/error";
+             logger.debug("User not authorized", params);
+             url.searchParams.set("error", "AccessDenied");
+             return { status: 403, redirect: url };
+@@ -11,6 +11,7 @@ export async function handleAuthorized(params, { url, logger, callbacks: { signI
+     }
+     catch (e) {
+         const error = new AuthorizedCallbackError(e);
++        url.pathname += "/error";
+         logger.error(error);
+         url.searchParams.set("error", "Configuration");
+         return { status: 500, redirect: url };
 diff --git a/node_modules/@auth/core/providers/email.js b/node_modules/@auth/core/providers/email.js
 index a75026e..e615ebd 100644
 --- a/node_modules/@auth/core/providers/email.js
