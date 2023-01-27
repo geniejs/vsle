@@ -2,7 +2,7 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "build": "run-s build:uno build:*",
+    "build": "run-s build:uno generate:prisma build:*",
     "build:remix": "cross-env NODE_ENV=production remix build",
     "build:uno": "npm run generate:uno -- --minify",
     "dev": "npm-run-all -p dev:*",
