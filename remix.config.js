@@ -1,11 +1,6 @@
 require("dotenv").config();
 const { withEsbuildOverride } = require("remix-esbuild-override");
 
-// AUTH_SECRET=
-// AUTH_TRUST_HOST=true
-// GITHUB_CLIENT_ID=
-// GITHUB_CLIENT_SECRET=
-
 withEsbuildOverride((option, { isServer, isDev }) => {
   if (isServer) {
     option.define = {
@@ -37,5 +32,6 @@ module.exports = {
     unstable_cssModules: false,
     unstable_vanillaExtract: false,
     unstable_cssSideEffectImports: false,
+    unstable_dev: true,
   },
 };
