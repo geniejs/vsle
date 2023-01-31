@@ -3,7 +3,7 @@ import type {
   DataFunctionArgs,
   AppLoadContext,
 } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
 import type { Provider, RedirectableProviderType } from "@auth/core/providers";
 import { Auth } from "@auth/core";
 import { parse } from "cookie";
@@ -81,6 +81,12 @@ export class RemixAuthenticator<User> {
       cookies[authjsCookies.csrfToken.name] ||
       getValue("csrfToken", url.searchParams, params);
 
+    const blockHtmlReturn = getValue(
+      "blockHtmlReturn",
+      url.searchParams,
+      params
+    );
+
     const callbackUrl =
       getValue("callbackUrl", url.searchParams, params) ??
       cookies[authjsCookies.callbackUrl.name] ??
@@ -106,6 +112,9 @@ export class RemixAuthenticator<User> {
         [csrfToken] = csrfToken.split("|");
         url.searchParams.set("csrfToken", csrfToken);
       }
+      if (blockHtmlReturn) {
+        url.searchParams.set("blockHtmlReturn", blockHtmlReturn);
+      }
       const authRequest = isPost
         ? new Request(request.url, {
             ...request,
@@ -116,6 +125,25 @@ export class RemixAuthenticator<User> {
         : new Request(url.href, request);
 
       const authResponse = await Auth(authRequest, this.options);
+      const location = authResponse.headers.get("Location");
+
+      if (
+        (location &&
+          blockHtmlReturn &&
+          authResponse.status >= 300 &&
+          authResponse.status < 400 &&
+          // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+          location.includes("verify-request")) ||
+        (blockHtmlReturn &&
+          authResponse.headers.get("Content-Type") === "text/html")
+      ) {
+        return json({
+          action,
+          providerId,
+          callbackUrl,
+          location,
+        });
+      }
       return authResponse;
     }
 

@@ -3,8 +3,8 @@ import type { DataFunctionArgs } from "@remix-run/cloudflare";
 import { useRef } from "react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { SignInForm, SignOutForm } from "remix-auth/src/lib/components";
-export const loader = async ({ request }: DataFunctionArgs) => {
-  const authenticator = getAuthenticator(process.env as Record<string, string>);
+export const loader = async ({ request, context }: DataFunctionArgs) => {
+  const authenticator = getAuthenticator(context.env as Record<string, any>);
   const providers = await authenticator.getProviders(request);
   const user = await authenticator.isAuthenticated(request);
   return { user, providers };

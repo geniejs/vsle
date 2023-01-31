@@ -7,7 +7,7 @@ export const loader = async ({
   context,
 }: DataFunctionArgs) => {
   return await getAuthenticator(
-    context.env as Record<string, string>
+    context.env as Record<string, any>
   ).handleAuthRoute({
     request,
     action: params.action!,
@@ -18,7 +18,7 @@ export const loader = async ({
 
 export const action: ActionFunction = async ({ request, params, context }) => {
   return await getAuthenticator(
-    context.env as Record<string, string>
+    context.env as Record<string, any>
   ).handleAuthRoute({
     request,
     action: params.action!,

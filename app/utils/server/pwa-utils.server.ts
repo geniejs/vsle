@@ -32,7 +32,11 @@ export async function PushNotification(content: PushObject, delay: number = 0) {
     return;
   }
 
-  //  webPush.setVapidDetails("https://serviceworke.rs/", process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+  // webPush.setVapidDetails(
+  //   "https://serviceworke.rs/",
+  //   process.env.VAPID_PUBLIC_KEY,
+  //   process.env.VAPID_PRIVATE_KEY
+  // );
 
   await storage.init();
   const subscription = await storage.getItem("subscription");

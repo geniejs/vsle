@@ -99,10 +99,7 @@ async function handleFetch(event) {
       await cache.put(event.request, response.clone());
       return response;
     } catch (error) {
-      debug(
-        "Serving data from network failed, falling back to cache",
-        url.pathname + url.search
-      );
+      debug("Serving data from network failed, falling back to cache", url.pathname + url.search);
       const response = await caches.match(event.request);
       if (response) {
         response.headers.set("X-Remix-Worker", "yes");
@@ -125,10 +122,7 @@ async function handleFetch(event) {
       await cache.put(event.request, response.clone());
       return response;
     } catch (error) {
-      debug(
-        "Serving document from network failed, falling back to cache",
-        url.pathname
-      );
+      debug("Serving document from network failed, falling back to cache", url.pathname);
       const response = await caches.match(event.request);
       if (response) {
         return response;
@@ -136,10 +130,10 @@ async function handleFetch(event) {
       throw error;
     }
   }
-  return await fetch(event.request.clone());
+  return fetch(event.request.clone());
 }
-var handlePush = (event) => {
-  const data = JSON.parse(event == null ? void 0 : event.data.text());
+var handlePush = async (event) => {
+  const data = JSON.parse(event?.data.text());
   const title = data.title ? data.title : "Remix PWA";
   const options = {
     body: data.body ? data.body : "Notification Body Text",
@@ -167,14 +161,10 @@ function isDocumentGetRequest(request) {
   return isMethod(request, ["get"]) && request.mode === "navigate";
 }
 self.addEventListener("install", (event) => {
-  event.waitUntil(handleInstall(event).then(async () => {
-    await self.skipWaiting();
-  }));
+  event.waitUntil(handleInstall(event).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", (event) => {
-  event.waitUntil(handleActivate(event).then(async () => {
-    await self.clients.claim();
-  }));
+  event.waitUntil(handleActivate(event).then(() => self.clients.claim()));
 });
 self.addEventListener("message", (event) => {
   event.waitUntil(handleMessage(event));
@@ -191,13 +181,10 @@ self.addEventListener("fetch", (event) => {
       } catch (error) {
         result.error = error;
       }
-      return await appHandleFetch(event, result);
+      return appHandleFetch(event, result);
     })()
   );
 });
-async function appHandleFetch(event, {
-  error,
-  response
-}) {
+async function appHandleFetch(event, { error, response }) {
   return response;
 }

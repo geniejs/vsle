@@ -2,26 +2,26 @@ import { RemixAuthenticator } from "remix-auth/src/lib";
 import Google from "@auth/core/providers/google";
 import { Email } from "@auth/core/providers/email";
 import type { AppLoadContext } from "@remix-run/cloudflare";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { getPrisma } from "./prismadb.server";
 import { Novu } from "@novu/node";
+import { D1Adapter } from "@auth/adapter-d1";
+
+export interface Env {
+  "vsle-keystone": D1Database;
+}
 
 // Create an instance of the authenticator
 let authenticator: RemixAuthenticator<Record<string, unknown>>;
 
-export const getAuthenticator = (
-  env: Record<string, string | undefined> | AppLoadContext
-) => {
+export const getAuthenticator = (env: Record<string, any> | AppLoadContext) => {
   if (!authenticator) {
     const novu = new Novu(env.NOVU_API_KEY as string);
-
     authenticator = new RemixAuthenticator(
       {
         session: {
           strategy: "jwt",
         },
         debug: env.NODE_ENV === "development",
-        adapter: PrismaAdapter(getPrisma(env as Record<string, string>)) as any,
+        adapter: D1Adapter(env["vsle-keystone"] as D1Database),
         providers: [
           Email({
             id: "email",
@@ -31,7 +31,7 @@ export const getAuthenticator = (
             type: "email",
             async sendVerificationRequest(params) {
               const { identifier, url } = params;
-              await novu.trigger("sendvslemagicemaillink", {
+              const novuR = await novu.trigger("sendvslemagicemaillink", {
                 to: {
                   subscriberId: identifier,
                   email: identifier,
@@ -40,6 +40,7 @@ export const getAuthenticator = (
                   verificationUrl: url,
                 },
               });
+              // console.log("novuR", novuR);
             },
           }),
           Google({

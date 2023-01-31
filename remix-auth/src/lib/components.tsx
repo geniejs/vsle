@@ -52,6 +52,8 @@ export function RemixAuthJsFormComp(
     ) {
       const formData = new FormData(form.current);
       formData.append("csrfToken", csrfToken);
+      formData.append("blockHtmlReturn", "true");
+      console.log("pathname", pathname);
       actionFetcher.submit(formData, {
         method,
         action: pathname,
@@ -76,7 +78,7 @@ export function RemixAuthJsFormComp(
       action={pathname}
       onSubmit={(e) => {
         e.preventDefault();
-        if (method.toLowerCase() === "post") {
+        if (!submitting.current && method.toLowerCase() === "post") {
           csrfFetcher.load(`${basePath}/csrf`);
         }
         submitting.current = true;

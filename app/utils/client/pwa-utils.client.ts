@@ -5,7 +5,7 @@
 */
 
 /* 
-  ⚠ Except you understand & know the implication of what you're what you are doing, don't modify this file! ⚠
+  ⚠ Except you understand & know the implication of what you're doing, don't modify this file! ⚠
 */
 
 /**
@@ -55,10 +55,7 @@ export async function copyText(text: string): Promise<ResponseObject> {
  * @param {() => void} offline - A function to be invoked if the device is not connected to an internet network.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function checkConnectivity(
-  online: () => void,
-  offline: () => void
-): Promise<ResponseObject> {
+export async function checkConnectivity(online: () => void, offline: () => void): Promise<ResponseObject> {
   try {
     if (navigator.onLine) {
       online();
@@ -91,7 +88,7 @@ export async function WakeLock(): Promise<ResponseObject> {
     if ("wakeLock" in navigator) {
       // This is an experimental feature!
 
-      // @ts-expect-error
+      //@ts-ignore
       const wakelock = navigator.wakeLock.request("screen");
       if (wakelock) {
         return {
@@ -126,9 +123,9 @@ export async function WakeLock(): Promise<ResponseObject> {
  */
 export async function addBadge(numberCount: number): Promise<ResponseObject> {
   try {
-    // @ts-expect-error
+    //@ts-ignore
     if (navigator.setAppBadge) {
-      // @ts-expect-error
+      //@ts-ignore
       await navigator.setAppBadge(numberCount);
       return {
         status: "success",
@@ -155,9 +152,9 @@ export async function addBadge(numberCount: number): Promise<ResponseObject> {
  */
 export async function removeBadge(): Promise<ResponseObject> {
   try {
-    // @ts-expect-error
+    //@ts-ignore
     if (navigator.clearAppBadge) {
-      // @ts-expect-error
+      //@ts-ignore
       await navigator.clearAppBadge();
       return {
         status: "success",
@@ -246,33 +243,25 @@ interface NotificationOptions {
  * @param {NotificationOptions} options - An object consisting of the notification's body, badge, icon, image, and silent options. Refer to https://github.com/ShafSpecs/remix-pwa#client-notification-api for additional info.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function SendNotification(
-  title: string,
-  options: NotificationOptions
-): Promise<ResponseObject> {
+export async function SendNotification(title: string, options: NotificationOptions): Promise<ResponseObject> {
   try {
     if ("Notification" in window) {
-      const permissions = await (
-        await navigator.permissions.query({ name: "notifications" })
-      ).state;
-      navigator.permissions
-        .query({ name: "notifications" })
-        .then((permissionStatus) => {
-          if (permissionStatus.state === "granted") {
-            
-          } else {
-            return Notification.requestPermission();
-          }
-        });
+      const permissions = (await navigator.permissions.query({ name: "notifications" })).state;
+      navigator.permissions.query({ name: "notifications" }).then((permissionStatus) => {
+        if (permissionStatus.state === "granted") {
+          return;
+        } else {
+          return Notification.requestPermission();
+        }
+      });
 
       if (permissions === "granted") {
-        await navigator.serviceWorker.ready.then((registration) => {
-          registration.showNotification(title, options);
-          return {
-            status: "success",
-            message: "Sent Notification to user successfully",
-          };
-        });
+        const registration = await navigator.serviceWorker.ready
+        await registration.showNotification(title, options);
+        return {
+          status: "success",
+          message: "Sent Notification to user successfully",
+        };
       } else {
         return {
           status: "bad",
@@ -300,10 +289,7 @@ export async function SendNotification(
  * @param {() => void} notVisible - A function to be invoked if the element is not visible on the current page.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function Visibility(
-  isVisible: () => void,
-  notVisible: () => void
-): Promise<ResponseObject> {
+export async function Visibility(isVisible: () => void, notVisible: () => void): Promise<ResponseObject> {
   try {
     if (document.visibilityState) {
       const visibleState = document.visibilityState;
@@ -353,7 +339,7 @@ export async function copyImage(url: string): Promise<ResponseObject> {
       ]);
       return {
         status: "success",
-        message: "Image copied successfully successfully!",
+        message: "Image copied successfully!",
       };
     } else {
       return {
@@ -403,17 +389,13 @@ export async function WebShare(data: any): Promise<ResponseObject> {
  * @param {string} text - An accompanying text alongside the header.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function WebShareLink(
-  url: string,
-  title: string,
-  text: string
-): Promise<ResponseObject> {
+export async function WebShareLink(url: string, title: string, text: string): Promise<ResponseObject> {
   try {
     if (navigator.canShare({ url })) {
       await navigator.share({
-        title,
-        text,
-        url,
+        title: title,
+        text: text,
+        url: url,
       });
       return {
         status: "success",
@@ -440,18 +422,14 @@ export async function WebShareLink(
  * @param {string} text - An accompanying text alongside the header.
  * @return {Promise<ResponseObject>} An object consisting of two properties: A status to indicate the status of the invocation and also an accompanying message.
  */
-export async function WebShareFile(
-  title: string,
-  data: any[],
-  text: string
-): Promise<ResponseObject> {
-  const filesArray = [...data];
+export async function WebShareFile(title: string, data: any[], text: string): Promise<ResponseObject> {
+  let filesArray = [...data];
   try {
     if (navigator.canShare && navigator.canShare({ files: filesArray })) {
       await navigator.share({
         files: filesArray,
-        title,
-        text,
+        title: title,
+        text: text,
       });
       return {
         status: "success",

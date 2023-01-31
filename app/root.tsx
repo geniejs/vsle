@@ -11,20 +11,17 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { MetaFunction, LinksFunction } from "@remix-run/cloudflare";
-
 import reset from "@unocss/reset/tailwind.css";
 import pico from "@picocss/pico/css/pico.css";
 import uno from "./uno.css";
 import global from "./global.css";
 import { use100vh } from "react-div-100vh";
-
 let isMount = true;
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
   title: "New Remix App",
   viewport: "width=device-width,initial-scale=1",
 });
-
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: pico },
   { rel: "stylesheet", href: reset },
@@ -32,10 +29,12 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: global },
 ];
 export default function App() {
-  const location = useLocation();
-  const matches = useMatches();
+  const vh = use100vh();
+  let location = useLocation();
+  let matches = useMatches();
+
   React.useEffect(() => {
-    const mounted = isMount;
+    let mounted = isMount;
     isMount = false;
     if ("serviceWorker" in navigator) {
       if (navigator.serviceWorker.controller) {
@@ -47,7 +46,7 @@ export default function App() {
           manifest: window.__remixManifest,
         });
       } else {
-        const listener = async () => {
+        let listener = async () => {
           await navigator.serviceWorker.ready;
           navigator.serviceWorker.controller?.postMessage({
             type: "REMIX_NAVIGATION",
@@ -67,7 +66,7 @@ export default function App() {
       }
     }
   }, [location, matches]);
-  const vh = use100vh();
+
   return (
     <html
       className="font-sans"
@@ -75,17 +74,14 @@ export default function App() {
       style={{ minHeight: `${vh ?? ""}px`, height: `${vh ?? ""}px` }}
     >
       <head>
-        <Meta />
-        <link rel="manifest" href="/resources/manifest.webmanifest" />
+        <Meta /> <link rel="manifest" href="/resources/manifest.webmanifest" />
         <Links />
       </head>
       <body className="bg-richblue-200 h-full">
         <header></header>
         <main>
-          <Outlet />
-          <ScrollRestoration /> <Scripts /> <LiveReload />
+          <Outlet /> <ScrollRestoration /> <Scripts /> <LiveReload />
         </main>
-
         <footer></footer>
       </body>
     </html>

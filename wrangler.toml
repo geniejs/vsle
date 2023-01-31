@@ -1,0 +1,6 @@
+compatibility_date = "2023-01-30"
+
+[[ d1_databases ]]
+binding = "vsle-keystone"
+database_name = "vsle-keystone"
+database_id = "23e99cc5-9064-4ff3-b3f0-fb6be2a51691"

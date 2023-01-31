@@ -23,10 +23,12 @@ if (window.requestIdleCallback) {
 
 if ("serviceWorker" in navigator) {
   // Use the window load event to keep the page load performant
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
+  async function loadSW() {
+    console.log("loaded");
+
+    return navigator.serviceWorker
       .register("/entry.worker.js")
-      .then(async () => await navigator.serviceWorker.ready)
+      .then(() => navigator.serviceWorker.ready)
       .then(() => {
         if (navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({
@@ -45,9 +47,17 @@ if ("serviceWorker" in navigator) {
       .catch((error) => {
         console.error("Service worker registration failed", error);
       });
-  });
-}
+  }
 
+  if (
+    document.readyState === "complete" ||
+    document.readyState === "interactive"
+  ) {
+    loadSW();
+  } else {
+    window.addEventListener("load", loadSW);
+  }
+}
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding)
@@ -57,7 +67,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
 
-  for (let i = 0; i < rawData.length; ++i) {
+  for (var i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i);
   }
   return outputArray;
@@ -70,14 +80,14 @@ navigator.serviceWorker.ready
   })
   .then(async (sub) => {
     if (await sub.subscription) {
-      return await sub.subscription;
+      return sub.subscription;
     }
 
     const subInfo = await fetch("/resources/subscribe");
     const returnedSubscription = await subInfo.text();
 
     const convertedVapidKey = urlBase64ToUint8Array(returnedSubscription);
-    return await sub.registration.pushManager.subscribe({
+    return sub.registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: convertedVapidKey,
     });
@@ -86,7 +96,7 @@ navigator.serviceWorker.ready
     await fetch("./resources/subscribe", {
       method: "POST",
       body: JSON.stringify({
-        subscription,
+        subscription: subscription,
         type: "POST_SUBSCRIPTION",
       }),
     });

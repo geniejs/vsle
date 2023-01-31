@@ -26,7 +26,7 @@ async function handleActivate(event: ExtendableEvent) {
 }
 
 async function handleMessage(event: ExtendableMessageEvent) {
-  const cachePromises = new Map<string, Promise<void>>();
+  const cachePromises: Map<string, Promise<void>> = new Map();
 
   if (event.data.type === "REMIX_NAVIGATION") {
     const { isMount, location, matches, manifest } = event.data;
@@ -44,7 +44,7 @@ async function handleMessage(event: ExtendableMessageEvent) {
         documentUrl,
         documentCache.add(documentUrl).catch((error) => {
           debug(`Failed to cache document for ${documentUrl}:`, error);
-        })
+        }),
       );
     }
 
@@ -62,7 +62,7 @@ async function handleMessage(event: ExtendableMessageEvent) {
               url,
               dataCache.add(url).catch((error) => {
                 debug(`Failed to cache data for ${url}:`, error);
-              })
+              }),
             );
           }
         }
@@ -104,10 +104,7 @@ async function handleFetch(event: FetchEvent): Promise<Response> {
       await cache.put(event.request, response.clone());
       return response;
     } catch (error) {
-      debug(
-        "Serving data from network failed, falling back to cache",
-        url.pathname + url.search
-      );
+      debug("Serving data from network failed, falling back to cache", url.pathname + url.search);
       const response = await caches.match(event.request);
       if (response) {
         response.headers.set("X-Remix-Worker", "yes");
@@ -119,7 +116,7 @@ async function handleFetch(event: FetchEvent): Promise<Response> {
         {
           status: 500,
           headers: { "X-Remix-Catch": "yes", "X-Remix-Worker": "yes" },
-        }
+        },
       );
     }
   }
@@ -132,10 +129,7 @@ async function handleFetch(event: FetchEvent): Promise<Response> {
       await cache.put(event.request, response.clone());
       return response;
     } catch (error) {
-      debug(
-        "Serving document from network failed, falling back to cache",
-        url.pathname
-      );
+      debug("Serving document from network failed, falling back to cache", url.pathname);
       const response = await caches.match(event.request);
       if (response) {
         return response;
@@ -144,10 +138,10 @@ async function handleFetch(event: FetchEvent): Promise<Response> {
     }
   }
 
-  return await fetch(event.request.clone());
+  return fetch(event.request.clone());
 }
 
-const handlePush = (event: PushEvent) => {
+const handlePush = async (event: PushEvent) => {
   const data = JSON.parse(event?.data!.text());
   const title = data.title ? data.title : "Remix PWA";
 
@@ -170,10 +164,7 @@ function isMethod(request: Request, methods: string[]) {
 }
 
 function isAssetRequest(request: Request) {
-  return (
-    isMethod(request, ["get"]) &&
-    STATIC_ASSETS.some((publicPath) => request.url.startsWith(publicPath))
-  );
+  return isMethod(request, ["get"]) && STATIC_ASSETS.some((publicPath) => request.url.startsWith(publicPath));
 }
 
 function isLoaderRequest(request: Request) {
@@ -186,11 +177,11 @@ function isDocumentGetRequest(request: Request) {
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(handleInstall(event).then(async () => { await self.skipWaiting(); }));
+  event.waitUntil(handleInstall(event).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(handleActivate(event).then(async () => { await self.clients.claim(); }));
+  event.waitUntil(handleActivate(event).then(() => self.clients.claim()));
 });
 
 self.addEventListener("message", (event) => {
@@ -210,28 +201,21 @@ self.addEventListener("push", (event) => {
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     (async () => {
-      const result = {} as
-        | { error: unknown; response: Response }
-        | { error: undefined; response: Response };
+      const result = {} as { error: unknown; response: Response } | { error: undefined; response: Response };
       try {
         result.response = await handleFetch(event);
       } catch (error) {
         result.error = error;
       }
 
-      return await appHandleFetch(event, result);
-    })()
+      return appHandleFetch(event, result);
+    })(),
   );
 });
 
 async function appHandleFetch(
   event: FetchEvent,
-  {
-    error,
-    response,
-  }:
-    | { error: unknown; response: Response }
-    | { error: undefined; response: Response }
+  { error, response }: { error: unknown; response: Response } | { error: undefined; response: Response },
 ): Promise<Response> {
   return response;
 }
