@@ -4,7 +4,7 @@ import { Email } from "@auth/core/providers/email";
 import type { AppLoadContext } from "@remix-run/cloudflare";
 import { Novu } from "@novu/node";
 import { D1Adapter } from "@auth/adapter-d1";
-
+import UAParser from "ua-parser-js";
 export interface Env {
   "vsle-keystone": D1Database;
 }
@@ -30,17 +30,25 @@ export const getAuthenticator = (env: Record<string, any> | AppLoadContext) => {
             from: env.EMAIL_FROM as string,
             type: "email",
             async sendVerificationRequest(params) {
-              const { identifier, url } = params;
-              const novuR = await novu.trigger("sendvslemagicemaillink", {
+              const { identifier, url, request } = params;
+              const parser = new UAParser(request.headers.get("User-Agent"));
+              await novu.trigger("sendvslemagicemaillink", {
                 to: {
                   subscriberId: identifier,
                   email: identifier,
                 },
                 payload: {
                   verificationUrl: url,
+                  email: identifier,
+                  using: `${parser.getBrowser().name as string} on ${
+                    parser.getOS().name as string
+                  }`,
+                  requestedAt:
+                    new Date().toLocaleString("en-US", {
+                      timeZone: "America/Los_Angeles",
+                    }) + " PST",
                 },
               });
-              // console.log("novuR", novuR);
             },
           }),
           Google({

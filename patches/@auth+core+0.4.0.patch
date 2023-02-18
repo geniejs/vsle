@@ -1,0 +1,124 @@
+diff --git a/node_modules/@auth/core/lib/email/signin.js b/node_modules/@auth/core/lib/email/signin.js
+index 4bd9fbc..8d79f03 100644
+--- a/node_modules/@auth/core/lib/email/signin.js
++++ b/node_modules/@auth/core/lib/email/signin.js
+@@ -3,7 +3,7 @@ import { createHash, randomString } from "../web.js";
+  * Starts an e-mail login flow, by generating a token,
+  * and sending it to the user's e-mail (with the help of a DB adapter)
+  */
+-export default async function email(identifier, options) {
++export default async function email(identifier, options, request) {
+     const { url, adapter, provider, callbackUrl, theme } = options;
+     const token = (await provider.generateVerificationToken?.()) ?? randomString(32);
+     const ONE_DAY_IN_SECONDS = 86400;
+@@ -20,6 +20,11 @@ export default async function email(identifier, options) {
+             url: _url,
+             provider,
+             theme,
++            request: new Request(request.url, {
++                headers: request.headers,
++                method: request.method,
++                body: JSON.stringify(request.body ?? {}),
++              }),
+         }),
+         // @ts-expect-error -- Verified in `assertConfig`.
+         adapter.createVerificationToken?.({
+diff --git a/node_modules/@auth/core/lib/index.js b/node_modules/@auth/core/lib/index.js
+index 9861bd9..c066e94 100644
+--- a/node_modules/@auth/core/lib/index.js
++++ b/node_modules/@auth/core/lib/index.js
+@@ -112,7 +112,7 @@ export async function AuthInternal(request, authOptions) {
+         switch (action) {
+             case "signin":
+                 if ((csrfDisabled || options.csrfTokenVerified) && options.provider) {
+-                    const signin = await routes.signin(request.query, request.body, options);
++                    const signin = await routes.signin(request.query, request.body, options, request);
+                     if (signin.cookies)
+                         cookies.push(...signin.cookies);
+                     return { ...signin, cookies };
+diff --git a/node_modules/@auth/core/lib/routes/signin.js b/node_modules/@auth/core/lib/routes/signin.js
+index 94bccbc..47a9b02 100644
+--- a/node_modules/@auth/core/lib/routes/signin.js
++++ b/node_modules/@auth/core/lib/routes/signin.js
+@@ -7,7 +7,7 @@ import { getAdapterUserFromEmail, handleAuthorized } from "./shared.js";
+  * For OAuth, redirects to the provider's authorization URL.
+  * For Email, sends an email with a sign in link.
+  */
+-export async function signin(query, body, options) {
++export async function signin(query, body, options, request) {
+     const { url, logger, provider } = options;
+     try {
+         if (provider.type === "oauth" || provider.type === "oidc") {
+@@ -27,7 +27,7 @@ export async function signin(query, body, options) {
+             const unauthorizedOrError = await handleAuthorized({ user, account, email: { verificationRequest: true } }, options);
+             if (unauthorizedOrError)
+                 return unauthorizedOrError;
+-            const redirect = await emailSignin(email, options);
++            const redirect = await emailSignin(email, options, request);
+             return { redirect };
+         }
+         return { redirect: `${url}/signin` };
+diff --git a/node_modules/@auth/core/providers/email.d.ts b/node_modules/@auth/core/providers/email.d.ts
+index cd1560b..de30db8 100644
+--- a/node_modules/@auth/core/providers/email.d.ts
++++ b/node_modules/@auth/core/providers/email.d.ts
+@@ -8,6 +8,7 @@ export interface SendVerificationRequestParams {
+     provider: EmailConfig;
+     token: string;
+     theme: Theme;
++    request: Request
+ }
+ /**
+  * The Email Provider needs to be configured with an e-mail client.
+diff --git a/node_modules/@auth/core/providers/email.js b/node_modules/@auth/core/providers/email.js
+index a75026e..9607ba3 100644
+--- a/node_modules/@auth/core/providers/email.js
++++ b/node_modules/@auth/core/providers/email.js
+@@ -1,4 +1,3 @@
+-import { createTransport } from "nodemailer";
+ /** TODO: */
+ export function Email(config) {
+     return {
+@@ -9,20 +8,7 @@ export function Email(config) {
+         from: "Auth.js <no-reply@authjs.dev>",
+         maxAge: 24 * 60 * 60,
+         async sendVerificationRequest(params) {
+-            const { identifier, url, provider, theme } = params;
+-            const { host } = new URL(url);
+-            const transport = createTransport(provider.server);
+-            const result = await transport.sendMail({
+-                to: identifier,
+-                from: provider.from,
+-                subject: `Sign in to ${host}`,
+-                text: text({ url, host }),
+-                html: html({ url, host, theme }),
+-            });
+-            const failed = result.rejected.concat(result.pending).filter(Boolean);
+-            if (failed.length) {
+-                throw new Error(`Email (${failed.join(", ")}) could not be sent`);
+-            }
++           throw new Error(`Email (${failed.join(", ")}) could not be sent`);
+         },
+         // @ts-expect-error
+         options: config,
+diff --git a/node_modules/@auth/core/src/providers/email.ts b/node_modules/@auth/core/src/providers/email.ts
+index bcf08cb..a51c830 100644
+--- a/node_modules/@auth/core/src/providers/email.ts
++++ b/node_modules/@auth/core/src/providers/email.ts
+@@ -2,7 +2,7 @@ import { createTransport } from "nodemailer"
+ 
+ import type { CommonProviderOptions } from "./index.js"
+ import type { Options as SMTPTransportOptions } from "nodemailer/lib/smtp-transport"
+-import type { Awaitable, Theme } from "../types.js"
++import type { Awaitable, RequestInternal, Theme } from "../types.js"
+ 
+ export interface SendVerificationRequestParams {
+   identifier: string
+@@ -11,6 +11,7 @@ export interface SendVerificationRequestParams {
+   provider: EmailConfig
+   token: string
+   theme: Theme
++  request: Request;
+ }
+ 
+ /**
